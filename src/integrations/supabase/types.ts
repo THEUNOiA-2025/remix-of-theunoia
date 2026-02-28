@@ -717,64 +717,127 @@ export type Database = {
       }
       user_profiles: {
         Row: {
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
           billing_address: string | null
           bio: string | null
           city: string | null
+          client_type: string | null
+          college_name: string | null
           created_at: string | null
           date_of_birth: string | null
+          declarations_accepted: boolean | null
+          education_level: string | null
           email: string
           first_name: string
           gender: string | null
+          gst_registered: boolean | null
+          gst_state: string | null
+          gstin: string | null
           id: string
           last_name: string
+          legal_business_name: string | null
+          pan: string | null
           phone: string | null
           pin_code: string | null
+          portfolio_link: string | null
           profile_completed: boolean | null
           profile_picture_url: string | null
+          registered_address: string | null
+          residential_address: string | null
+          signup_device: string | null
+          signup_ip: string | null
+          skills_category: string | null
+          tan: string | null
           updated_at: string | null
+          upi_id: string | null
           user_id: string
           user_type: string | null
           website: string | null
+          will_deduct_tds: boolean | null
         }
         Insert: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
           billing_address?: string | null
           bio?: string | null
           city?: string | null
+          client_type?: string | null
+          college_name?: string | null
           created_at?: string | null
           date_of_birth?: string | null
+          declarations_accepted?: boolean | null
+          education_level?: string | null
           email: string
           first_name: string
           gender?: string | null
+          gst_registered?: boolean | null
+          gst_state?: string | null
+          gstin?: string | null
           id?: string
           last_name: string
+          legal_business_name?: string | null
+          pan?: string | null
           phone?: string | null
           pin_code?: string | null
+          portfolio_link?: string | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
+          registered_address?: string | null
+          residential_address?: string | null
+          signup_device?: string | null
+          signup_ip?: string | null
+          skills_category?: string | null
+          tan?: string | null
           updated_at?: string | null
+          upi_id?: string | null
           user_id: string
           user_type?: string | null
           website?: string | null
+          will_deduct_tds?: boolean | null
         }
         Update: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
           billing_address?: string | null
           bio?: string | null
           city?: string | null
+          client_type?: string | null
+          college_name?: string | null
           created_at?: string | null
           date_of_birth?: string | null
+          declarations_accepted?: boolean | null
+          education_level?: string | null
           email?: string
           first_name?: string
           gender?: string | null
+          gst_registered?: boolean | null
+          gst_state?: string | null
+          gstin?: string | null
           id?: string
           last_name?: string
+          legal_business_name?: string | null
+          pan?: string | null
           phone?: string | null
           pin_code?: string | null
+          portfolio_link?: string | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
+          registered_address?: string | null
+          residential_address?: string | null
+          signup_device?: string | null
+          signup_ip?: string | null
+          skills_category?: string | null
+          tan?: string | null
           updated_at?: string | null
+          upi_id?: string | null
           user_id?: string
           user_type?: string | null
           website?: string | null
+          will_deduct_tds?: boolean | null
         }
         Relationships: []
       }

@@ -12,7 +12,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 
 interface Bid {
   id: string;
-  project_id: string;ss
+  project_id: string;
   freelancer_id: string;
   amount: number;
   proposal: string;
