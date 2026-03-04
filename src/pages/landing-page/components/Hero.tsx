@@ -71,7 +71,7 @@ const Hero = () => {
               <div className="landing-hero-rotator" ref={rotatorRef}>
                 {words.map((word, index) => (
                   <div className="landing-hero-face" key={index}>
-                    <h2 className="landing-hero-word">{word}</h2>
+                    <h1 className="landing-hero-word">{word}</h1>
                   </div>
                 ))}
               </div>
