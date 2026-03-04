@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 
@@ -205,6 +206,11 @@ const ContactPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>TheUnoia | Contact – Hire Top Freelance Talent</title>
+        <meta name="description" content="Get in touch with TheUnoia team for support, collaboration, or inquiries about online jobs, hiring freelance talent, and platform services." />
+        <link rel="canonical" href="https://www.theunoia.com/contact" />
+      </Helmet>
       {/* NAVBAR */}
       <header className="landing-navbar">
         <div className="landing-logo">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +60,11 @@ const BlogPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>online work from home for students | Part-Time Work Tips – TheUnoia</title>
+        <meta name="description" content="Read expert articles on online jobs for students, part-time jobs on the internet for students, and practical tips on how to earn money online while studying." />
+        <link rel="canonical" href="https://www.theunoia.com/blog" />
+      </Helmet>
       <Navbar />
 
       {/* Blog Hero Section */}

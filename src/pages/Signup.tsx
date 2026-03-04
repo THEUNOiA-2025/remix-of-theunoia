@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -101,6 +102,11 @@ const Signup = () => {
 
   return (
     <div className="flex min-h-screen">
+      <Helmet>
+        <title>TheUnoia | Sign Up – Start Freelancing Today</title>
+        <meta name="description" content="Create your TheUnoia account to access online jobs, start part time work, hire freelance talent, and begin earning online today." />
+        <link rel="canonical" href="https://www.theunoia.com/signup" />
+      </Helmet>
       {/* Left Side - Branding & Images */}
       <div className="hidden lg:flex lg:w-1/2 bg-muted flex-col justify-between p-12">
         <div className="flex items-center">

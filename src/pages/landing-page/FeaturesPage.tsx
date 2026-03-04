@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, Fragment } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -199,6 +200,11 @@ const FeaturesPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>Online Work for Students Platform Features | TheUnoia</title>
+        <meta name="description" content="Explore TheUnoia platform features designed for online jobs for students, part-time online work, and easy ways to earn money for students online." />
+        <link rel="canonical" href="https://www.theunoia.com/features" />
+      </Helmet>
       {/* CURSOR GLOW */}
       <div className="cursor-glow" ref={cursorGlowRef}></div>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 
@@ -187,6 +188,11 @@ const FAQPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>earn money online for students | TheUnoia Answers</title>
+        <meta name="description" content="Get answers to common questions about online jobs for students, part-time online work, how to earn money online for students, and more with TheUnoia FAQs." />
+        <link rel="canonical" href="https://www.theunoia.com/faq" />
+      </Helmet>
       {/* NAVBAR */}
       <header className="landing-navbar">
         <div className="landing-logo">
