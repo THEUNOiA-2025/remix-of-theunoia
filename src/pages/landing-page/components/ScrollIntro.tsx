@@ -261,7 +261,7 @@ return(
 
 </div>
 
-<h1 ref={headlineRef} id="headline"/>
+<h2 ref={headlineRef} id="headline"/>
 
 </section>
 

@@ -69,10 +69,10 @@ const BlogPage = () => {
         <div className="blog-container">
           <span className="blog-chip">Our Blogs</span>
 
-          <h1 className="blog-title">
+          <h2 className="blog-title">
             Insights and Inspiration,<br />
             Explore Our Blog
-          </h1>
+          </h2>
 
           <p className="blog-subtitle">
             Dive into our blog for expert insights, tips, and industry trends

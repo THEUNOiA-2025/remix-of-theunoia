@@ -78,7 +78,7 @@ const ServicesSection = () => {
   return (
     <section className="our-services">
       <div className="services-container">
-        <h1>Our Creations</h1>
+        <div className="services-heading">Our Creations</div>
 
         <div className="services-list">
           {servicesData.map((service) => (

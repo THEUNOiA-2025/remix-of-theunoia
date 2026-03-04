@@ -143,9 +143,9 @@ const StatsGrid = () => {
 
             {/* Main Card */}
             <div className="main-card" ref={mainCardRef}>
-              <h1>
+              <div className="main-card-heading">
                 Turning Student <br /> To Talents !
-              </h1>
+              </div>
             </div>
           </div>
         </div>
