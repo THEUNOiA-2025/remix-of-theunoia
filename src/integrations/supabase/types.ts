@@ -723,8 +723,11 @@ export type Database = {
           billing_address: string | null
           bio: string | null
           city: string | null
+          client_contract_signed: boolean | null
           client_type: string | null
           college_name: string | null
+          consent_version: string | null
+          contract_signed: boolean | null
           created_at: string | null
           date_of_birth: string | null
           declarations_accepted: boolean | null
@@ -744,12 +747,16 @@ export type Database = {
           portfolio_link: string | null
           profile_completed: boolean | null
           profile_picture_url: string | null
+          razorpay_contact_id: string | null
+          razorpay_fund_account_id: string | null
           registered_address: string | null
           residential_address: string | null
+          signature_url: string | null
           signup_device: string | null
           signup_ip: string | null
           skills_category: string | null
           tan: string | null
+          tds_consent_accepted: boolean | null
           updated_at: string | null
           upi_id: string | null
           user_id: string
@@ -764,8 +771,11 @@ export type Database = {
           billing_address?: string | null
           bio?: string | null
           city?: string | null
+          client_contract_signed?: boolean | null
           client_type?: string | null
           college_name?: string | null
+          consent_version?: string | null
+          contract_signed?: boolean | null
           created_at?: string | null
           date_of_birth?: string | null
           declarations_accepted?: boolean | null
@@ -785,12 +795,16 @@ export type Database = {
           portfolio_link?: string | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
+          razorpay_contact_id?: string | null
+          razorpay_fund_account_id?: string | null
           registered_address?: string | null
           residential_address?: string | null
+          signature_url?: string | null
           signup_device?: string | null
           signup_ip?: string | null
           skills_category?: string | null
           tan?: string | null
+          tds_consent_accepted?: boolean | null
           updated_at?: string | null
           upi_id?: string | null
           user_id: string
@@ -805,8 +819,11 @@ export type Database = {
           billing_address?: string | null
           bio?: string | null
           city?: string | null
+          client_contract_signed?: boolean | null
           client_type?: string | null
           college_name?: string | null
+          consent_version?: string | null
+          contract_signed?: boolean | null
           created_at?: string | null
           date_of_birth?: string | null
           declarations_accepted?: boolean | null
@@ -826,12 +843,16 @@ export type Database = {
           portfolio_link?: string | null
           profile_completed?: boolean | null
           profile_picture_url?: string | null
+          razorpay_contact_id?: string | null
+          razorpay_fund_account_id?: string | null
           registered_address?: string | null
           residential_address?: string | null
+          signature_url?: string | null
           signup_device?: string | null
           signup_ip?: string | null
           skills_category?: string | null
           tan?: string | null
+          tds_consent_accepted?: boolean | null
           updated_at?: string | null
           upi_id?: string | null
           user_id?: string
