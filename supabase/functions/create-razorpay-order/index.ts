@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -78,20 +78,24 @@ serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({
-                order_id: order.id,
-                amount: order.amount,
-                currency: order.currency,
-                key_id: Deno.env.get("RAZORPAY_KEY_ID"),
-            }),
+            JSON.stringify(order),
             {
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
                 status: 200,
             }
         );
-    } catch (error) {
+    } catch (error: any) {
+        console.error("Create Razorpay Order Error:", error);
+
+        let errorMsg = error.message || "An unknown error occurred during order creation";
+
+        // Sometimes Razorpay errors are deeply nested
+        if (error.error && error.error.description) {
+            errorMsg = error.error.description;
+        }
+
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: errorMsg }),
             {
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
                 status: 400,
