@@ -14,10 +14,10 @@ serve(async (req) => {
     }
 
     try {
-        const { projectId } = await req.json();
+        const { projectId, amount, bidId } = await req.json();
 
-        if (!projectId) {
-            throw new Error("Project ID is required");
+        if (!projectId || !amount) {
+            throw new Error("Project ID and Amount are required");
         }
 
         // Initialize Supabase client
@@ -25,19 +25,15 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // Fetch project details
+        // Fetch project details to verify existence
         const { data: project, error: projectError } = await supabase
             .from("user_projects")
-            .select("*")
+            .select("id")
             .eq("id", projectId)
             .single();
 
         if (projectError || !project) {
             throw new Error("Project not found");
-        }
-
-        if (!project.budget || project.budget <= 0) {
-            throw new Error("Invalid project budget");
         }
 
         // Initialize Razorpay
@@ -46,15 +42,16 @@ serve(async (req) => {
             key_secret: Deno.env.get("RAZORPAY_KEY_SECRET") ?? "",
         });
 
-        const amountInPaise = Math.round(project.budget * 100);
+        const amountInPaise = Math.round(amount * 100); // Razorpay expects amount in paise
         const currency = "INR";
 
         const options = {
             amount: amountInPaise,
             currency,
-            receipt: `receipt_${projectId}_${Date.now()}`,
+            receipt: `receipt_${bidId || projectId}_${Date.now()}`,
             notes: {
                 projectId: projectId,
+                bidId: bidId || '',
             },
         };
 
