@@ -42,7 +42,7 @@ serve(async (req) => {
             key_secret: Deno.env.get("RAZORPAY_KEY_SECRET") ?? "",
         });
 
-        const amountInPaise = Math.round(amount * 100); // Razorpay expects amount in paise
+        const amountInPaise = Math.round(parseFloat(Number(amount).toFixed(2)) * 100); // Razorpay strictly expects an integer in paise
         const currency = "INR";
 
         const options = {
