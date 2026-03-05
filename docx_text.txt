@@ -1,0 +1,136 @@
+INDEPENDENT CONTRACTOR AGREEMENT
+Between THEUNOiA LLP and the independence contractor
+(Under the Indian Contract Act, 1872)
+This Independent Contractor Agreement (“Agreement”) is executed on this ___ day of __________ 20__ (“Effective Date”)
+BY AND BETWEEN
+THEUNOiA, a digital marketplace platform operated under the laws of India, having its registered office at M/S THEUNOiA LLP C/O Nilkanth, Laxmi Nagar Chandrapur, Maharashtra – 442401 (hereinafter referred to as “THEUNOiA” or “Platform”, which expression shall, unless repugnant to the context, include its successors and permitted assigns);
+AND
+Mr./Ms. ________________________, residing at ___________________________, holding PAN _____________ (and GSTIN _____________, if applicable), (hereinafter referred to as the “Independent Contractor”, which expression shall include his/her heirs, legal representatives and permitted assigns).
+THEUNOiA and the Independent Contractor are hereinafter collectively referred to as the “Parties” and individually as a “Party”.
+1. NATURE OF ENGAGEMENT
+1.1 The Independent Contractor agrees to provide professional services to clients sourced through THEUNOiA strictly as an independent contractor.
+1.2 Nothing contained herein shall be construed to create any employer employee relationship, partnership, joint venture, agency, or fiduciary relationship between THEUNOiA and the Independent Contractor.
+1.3 The Independent Contractor shall have full control over the manner and method of performing services, subject to compliance with Platform policies and agreed project scope. As set forth in the Terms and Conditions of the Platform & as directed by THEUNOiA 
+ 2. SCOPE OF SERVICES
+2.1 The Freelancer agrees to provide services listed under the skills registered on the THEUNOiA Platform.
+2.2 The Freelancer shall:
+ Deliver services professionally and within agreed timelines
+ Comply with project specifications uploaded on the Platform
+ Follow all Platform policies, quality standards, and compliance requirements
+2.3 All projects shall follow the Phase-Based Project Structure as defined in THEUNOiA’s Terms and Conditions.
+ 3. PLATFORM FEES & PAYMENT STRUCTURE
+3.1 In consideration for marketplace access, infrastructure, payment facilitation, compliance systems, and dispute resolution mechanisms, THEUNOiA shall deduct a 5% Platform Fee from the total contract value of each project.
+3.2 Applicable GST on the Platform Fee shall also be deducted as per law.
+3.3 Statutory deductions including TDS and TCS (where applicable under law) shall be deducted in accordance with applicable legislation.
+3.4 A detailed settlement breakdown shall be made available in the Freelancer dashboard.
+3.5 The Freelancer acknowledges that Platform Fees are independent of statutory tax deductions.
+3.6 THEUNOiA reserves the right to revise Platform Fees prospectively. Ongoing accepted projects shall not be affected.
+3.7 
+“The Independent Contractor/Freelancer acknowledges that THEUNOiA follows a phased project execution and payment system, the complete details of which are set out in the Terms and Conditions, Privacy Policy, and the Specialized Terms and Conditions applicable to each skill. By accepting and executing this Agreement, the Independent Contractor/Freelancer confirms that they have read, understood, and agreed to be legally bound by all such policies and terms, including the phased system and the related payment structure.”
+4. PAYMENT CONDITIONS
+4.1 All payments must be processed exclusively through THEUNOiA’s integrated payment system.
+4.2 Off platform payments are strictly prohibited.
+4.3 Attempting to bypass the Platform payment mechanism shall constitute a material breach and may result in:
+Immediate suspension
+Permanent account termination
+Legal recovery proceedings
+ 5. TAXATION & INVOICING
+5.1 If registered under GST, the Freelancer shall:
+Issue GST-compliant invoices
+Correctly calculate and charge GST
+File returns and deposit GST with the Government
+5.2 THEUNOiA shall charge GST on Platform commission as per applicable law.
+5.3 Where required under Income Tax Act:
+TDS may apply
+The Freelancer acknowledges compliance       obligations
+5.4 Where required under GST law:
+ TCS may be collected and deposited
+5.5 THEUNOiA acts only as an intermediary and shall not assume statutory tax liability of the Freelancer.
+ 6. DATA ACCESS, MONITORING & PLATFORM CONTROL
+6.1 THEUNOiA retains administrative access to Platform data including:
+Messages
+Files
+Project documents
+Transaction records
+Communication logs
+6.2 Such access may be exercised for:
+ Dispute resolution
+ Fraud prevention
+ Security monitoring
+ Legal compliance
+ Operational improvement
+6.3 Administrative access shall be limited to authorized personnel.
+6.4 The Freelancer shall not:
+Manipulate
+Falsify
+Delete transaction logs
+Tamper with records
+Violation shall be treated as material breach.
+7. CONFIDENTIALITY
+7.1 The Freelancer shall maintain strict confidentiality of:
+a) Platform systems
+b) Project details
+c) User data
+d) Proprietary processes
+7.2 Confidentiality obligations survive termination.
+8. INTELLECTUAL PROPERTY
+8.1 Ownership of project deliverables shall be governed by project-specific terms uploaded on the Platform.
+8.2 The Freelancer retains no ownership rights unless explicitly agreed.
+9. REPRESENTATIONS & WARRANTIES
+The Freelancer represents that:
+All information provided is true and accurate
+They possess necessary qualifications and licenses
+They are legally competent to contract
+They shall comply with all applicable Indian laws
+ 10. SUSPENSION & TERMINATION
+10.1 THEUNOiA may suspend or terminate the Freelancer’s account in case of:
+a) Policy violations
+b) Fraud or misconduct
+c) Tax non-compliance
+d) Attempt to bypass platform
+e) Reputational harm
+10.2 Upon termination:
+ Pending settlements shall be processed   subject to deductions
+ Access to Platform shall cease
+ 11. LIMITATION OF LIABILITY
+11.1 THEUNOiA shall not be liable for:
+Indirect or consequential losses
+Tax penalties arising from Freelancer non-compliance
+Client disputes beyond Platform dispute mechanism
+ 12. DISPUTE RESOLUTION
+12.1 Disputes arising under this Agreement shall first be attempted to be resolved amicably.
+12.2 THEUNOiA acts only as a facilitator between the Client and the Independent Contractor and shall not be liable for any disputes, claims, losses, or damages arising between them. 
+The Client and the Independent Contractor may take legal action against each other independently, and THEUNOiA shall not be made a party to such disputes.
+However, any issue or grievance must first be notified to THEUNOiA in writing and reasonable time must be given for review before initiating legal proceedings.
+13. GOVERNING LAW & JURISDICTION
+This Agreement shall be governed by the laws of India.
+ 14. ACKNOWLEDGMENT OF PLATFORM POLICIES
+The Freelancer expressly acknowledges that:
+a)They have read and understood THEUNOiA’s Terms & Conditions and privacy policy
+b)Detailed operational procedures, dispute mechanisms, data handling practices, and compliance frameworks are elaborated therein.
+c) These policies form an integral part of this Agreement
+d)Failure to review these policies shall not exempt the Freelancer from obligations therein.
+15. MISCELLANEOUS
+a)This Agreement constitutes the entire understanding between Parties.
+b)Amendments must be in writing.This Agreement may be amended, modified, or updated solely at the discretion of THEUNOiA LLP.
+c) If any provision is held invalid, remaining provisions remain enforceable.
+d) Electronic acceptance shall be legally binding under the Information Technology Act, 2000.
+e)The Independent Contractor hereby represents and warrants that they are at least eighteen (18) years of age and legally competent to enter into this Agreement under applicable Indian law.
+In the event the Independent Contractor is below eighteen (18) years of age, the Contractor confirms that they are acting strictly under the supervision, consent, and legal responsibility of their parent or lawful guardian, and that such guardian has reviewed and accepted this Agreement, the Terms and Conditions, and the Privacy Policy of THEUNOiA.
+Any misrepresentation of age shall constitute a material breach and may result in immediate suspension or termination of access to the Platform.
+16. ACCEPTANCE
+By proceeding with payment or accepting a proposal on THEUNOiA, the independent contractor agrees to be legally bound by this 
+Agreement. These
+ are further articulated in terms and 
+conditions. “The Independent Contractor/Freelancer acknowledges and agrees that THEUNOiA shall be entitled to deduct its applicable commission and/or service fee as specified under the Terms and Conditions from the agreed Project 
+consideration. ”The Parties acknowledge that all applicable taxes, statutory deductions, levies, and regulatory compliances, including commission structure and service fees, are governed by and detailed in THEUNOiA’s Terms and Conditions and shall be applicable to this Contract accordingly.”
+“The Parties hereby agree that this Contract has been finalized at a total consideration of ₹____ (Rupees ______ only), which shall constitute the total agreed value of the Project.”
+For THEUNOiA LLP
+Authorized Signatory
+Name: 
+Sai krishnan
+Designation: 
+Founder & Managing Director of THEUNOiA
+Independence contractor
+Name: __________________
+Date: _________________

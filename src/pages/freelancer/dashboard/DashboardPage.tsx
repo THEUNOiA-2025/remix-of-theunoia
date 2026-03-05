@@ -25,9 +25,15 @@ import { recordActivity } from '@/utils/dailyStreak';
 import { toast } from 'sonner';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, getDay } from 'date-fns';
 import { X, GripVertical, Trash2 } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardService } from '@/services/dashboardService';
+import { ProjectService } from '@/services/projectService';
+import { getRandomProjectVideo } from "@/utils/randomVideo";
+
+const DASHBOARD_VIDEO_1 = getRandomProjectVideo();
+const DASHBOARD_VIDEO_2 = getRandomProjectVideo();
+const DASHBOARD_VIDEO_3 = getRandomProjectVideo();
+const DASHBOARD_VIDEO_4 = getRandomProjectVideo();
 import { UserWeeklyPlan, UserTodo, WeeklyTask, TodoPriority, WeeklyFocus } from '@/types/dashboard';
 
 interface Project {
@@ -97,7 +103,7 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { streak } = useDailyStreak(true); // Auto-record activity on dashboard visit
-  const [profile, setProfile] = useState<{ first_name: string; last_name: string } | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string; last_name: string; user_type?: string } | null>(null);
   const [activeProjects, setActiveProjects] = useState<Project[]>([]);
   const [currentTechCardIndex, setCurrentTechCardIndex] = useState(0);
 
@@ -158,18 +164,16 @@ const DashboardPage = () => {
   });
 
   // Earnings & Profit – count-up animation when section scrolls into view
-  const EARNINGS_TOTAL = 245000;
-  const EARNINGS_NET = 187500;
-  const EARNINGS_AVG = 20417;
+  const [calculatedEarnings, setCalculatedEarnings] = useState({ total: 0, avg: 0 });
   const [displayTotal, setDisplayTotal] = useState(0);
-  const [displayNet, setDisplayNet] = useState(0);
   const [displayAvg, setDisplayAvg] = useState(0);
   const earningsSectionRef = useRef<HTMLDivElement>(null);
   const earningsAnimatedRef = useRef(false);
 
   useEffect(() => {
     const el = earningsSectionRef.current;
-    if (!el) return;
+    if (!el || (calculatedEarnings.total === 0 && calculatedEarnings.avg === 0)) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0].isIntersecting || earningsAnimatedRef.current) return;
@@ -181,9 +185,8 @@ const DashboardPage = () => {
           const elapsed = now - start;
           const p = Math.min(elapsed / duration, 1);
           const eased = easeOutCubic(p);
-          setDisplayTotal(Math.round(EARNINGS_TOTAL * eased));
-          setDisplayNet(Math.round(EARNINGS_NET * eased));
-          setDisplayAvg(Math.round(EARNINGS_AVG * eased));
+          setDisplayTotal(Math.round(calculatedEarnings.total * eased));
+          setDisplayAvg(Math.round(calculatedEarnings.avg * eased));
           if (p < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
@@ -192,7 +195,7 @@ const DashboardPage = () => {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [calculatedEarnings]);
 
   const formatEarnings = (n: number) => n.toLocaleString('en-IN');
 
@@ -211,57 +214,83 @@ const DashboardPage = () => {
     { source: "CNET", time: "12h ago", icon: "C", iconBg: "bg-pink-600", headline: "Tesla unveils next-generation autonomous driving system with improved safety features." },
   ];
 
-  // Latest in Tech cards data
-  const latestTechCards = [
-    {
-      id: 1,
-      author: "James Clear",
-      category: "Technology",
-      title: "30 One-Sentence Stories From People Who Have Built Better Habits",
-      description: "But no matter what, keep taking action in small ways each day. It is so gratifying for me to see people making real changes in their life b...",
-      backgroundImage: "/images/auth-slide-1.png"
+  // Fetch Latest in Tech news
+  const { data: latestTechCards = [], isLoading: isLoadingNews } = useQuery({
+    queryKey: ['tech-news'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('https://newsapi.org/v2/top-headlines?category=technology&language=en&apiKey=ce5d12daf5534deea0bb7ee8d88b8916');
+        if (!response.ok) {
+          throw new Error('Failed to fetch news');
+        }
+        const data = await response.json();
+
+        // Map the articles to the format expected by the cards
+        if (data.articles && data.articles.length > 0) {
+          type NewsArticle = {
+            title?: string;
+            author?: string;
+            source?: { name?: string };
+            description?: string;
+            urlToImage?: string;
+            url?: string;
+          };
+          return data.articles.filter((article: NewsArticle) => article.title && article.title !== '[Removed]').map((article: NewsArticle, index: number) => ({
+            id: index + 1,
+            author: article.author || article.source?.name || "Tech News",
+            category: "Technology",
+            title: article.title,
+            description: article.description || "Read more about this article by clicking the link.",
+            backgroundImage: article.urlToImage || "/images/dashboard-hero.png",
+            url: article.url
+          })).slice(0, 10); // Limit to top 10 articles
+        }
+        return [];
+      } catch (error) {
+        console.error("Error fetching tech news:", error);
+        // Fallback to static data if API fails
+        return [
+          {
+            id: 1,
+            author: "James Clear",
+            category: "Technology",
+            title: "30 One-Sentence Stories From People Who Have Built Better Habits",
+            description: "But no matter what, keep taking action in small ways each day. It is so gratifying for me to see people making real changes in their life b...",
+            backgroundImage: "/images/auth-slide-1.png",
+            url: "#"
+          },
+          {
+            id: 2,
+            author: "Tyler Cowen",
+            category: "Technology",
+            title: "Who gains new AI?",
+            description: "One striking systems is th to use them. Stable Diffus",
+            backgroundImage: "/images/auth-slide-2.png",
+            url: "#"
+          },
+          {
+            id: 3,
+            author: "Sarah Johnson",
+            category: "Technology",
+            title: "The Future of Remote Work",
+            description: "Exploring how technology is reshaping the way we work and collaborate in distributed teams.",
+            backgroundImage: "/images/auth-slide-3.png",
+            url: "#"
+          },
+          {
+            id: 4,
+            author: "Michael Chen",
+            category: "Technology",
+            title: "AI Revolution in 2024",
+            description: "Understanding the latest breakthroughs in artificial intelligence and their impact on everyday life.",
+            backgroundImage: "/images/dashboard-hero.png",
+            url: "#"
+          }
+        ];
+      }
     },
-    {
-      id: 2,
-      author: "Tyler Cowen",
-      category: "Technology",
-      title: "Who gains new AI?",
-      description: "One striking systems is th to use them. Stable Diffus",
-      backgroundImage: "/images/auth-slide-2.png"
-    },
-    {
-      id: 3,
-      author: "Sarah Johnson",
-      category: "Technology",
-      title: "The Future of Remote Work",
-      description: "Exploring how technology is reshaping the way we work and collaborate in distributed teams.",
-      backgroundImage: "/images/auth-slide-3.png"
-    },
-    {
-      id: 4,
-      author: "Michael Chen",
-      category: "Technology",
-      title: "AI Revolution in 2024",
-      description: "Understanding the latest breakthroughs in artificial intelligence and their impact on everyday life.",
-      backgroundImage: "/images/dashboard-hero.png"
-    },
-    {
-      id: 5,
-      author: "David Kim",
-      category: "Technology",
-      title: "Blockchain Beyond Cryptocurrency",
-      description: "Discovering practical applications of blockchain technology in various industries beyond finance.",
-      backgroundImage: "/images/auth-slide-1.png"
-    },
-    {
-      id: 6,
-      author: "Emily Rodriguez",
-      category: "Technology",
-      title: "Sustainable Tech Solutions",
-      description: "How technology companies are addressing environmental challenges through innovation.",
-      backgroundImage: "/images/auth-slide-2.png"
-    }
-  ];
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
 
   // Combined suggested items (classes and projects mixed)
   const suggestedItems = [
@@ -358,13 +387,9 @@ const DashboardPage = () => {
       try {
         const { data, error } = await supabase
           .from('user_profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, user_type')
           .eq('user_id', user.id)
           .single();
-
-        console.log("User ID:", user?.id);
-        console.log("Data:", data);
-        console.log("Error:", error);
 
         if (error) console.warn('Profile fetch error (e.g. after DB migration):', error);
         setProfile(data ?? null);
@@ -382,19 +407,40 @@ const DashboardPage = () => {
 
     const fetchStats = async () => {
       try {
-        // Get completed projects
-        const { count: successfulCount } = await supabase
-          .from('user_projects')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('status', 'completed');
+        // Get completed projects with budgets for earnings calculation
+        const now = new Date();
+        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const endOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const role = profile?.user_type === 'client' ? 'client' : 'freelancer';
+        const completedProjectsData = await ProjectService.getCompletedProjects(user.id, role);
+
+        let totalEarningsThisMonth = 0;
+        let completedThisMonthCount = 0;
+
+        if (completedProjectsData) {
+          completedProjectsData.forEach((project) => {
+            // Fallback to updated_at if completed_at doesn't exist.
+            const completionDateStr = project.completed_at || project.updated_at;
+            if (completionDateStr) {
+              if (completionDateStr >= startOfCurrentMonth && completionDateStr <= endOfCurrentMonth) {
+                totalEarningsThisMonth += Number(project.budget) || 0;
+                completedThisMonthCount++;
+              }
+            }
+          });
+        }
+
+        setCalculatedEarnings({
+          total: totalEarningsThisMonth,
+          avg: completedThisMonthCount > 0 ? Math.round(totalEarningsThisMonth / completedThisMonthCount) : 0
+        });
+
+        const successfulCount = completedProjectsData?.length || 0;
 
         // Get ongoing projects
-        const { count: ongoingCount } = await supabase
-          .from('user_projects')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('status', 'in_progress');
+        const ongoingProjectsData = await ProjectService.getWorkingProjects(user.id, role);
+        const ongoingCount = ongoingProjectsData?.length || 0;
 
         // Get pending projects (open with bids)
         const { count: pendingCount } = await supabase
@@ -404,35 +450,20 @@ const DashboardPage = () => {
           .eq('status', 'open');
 
         setStats({
-          successful: successfulCount || 0,
+          successful: successfulCount,
           ongoing: ongoingCount || 0,
           pending: pendingCount || 0,
         });
 
         // Fetch active projects (in_progress)
-        const { data: projects } = await supabase
-          .from('user_projects')
-          .select(`
-            id,
-            title,
-            status,
-            budget,
-            created_at,
-            bidding_deadline
-          `)
-          .eq('user_id', user.id)
-          .in('status', ['in_progress', 'open'])
-          .order('created_at', { ascending: false })
-          .limit(3);
-
-        setActiveProjects(projects || []);
+        setActiveProjects((ongoingProjectsData as any[])?.slice(0, 3) || []);
       } catch (error) {
         console.error('Error fetching stats:', error);
       }
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, profile?.user_type]);
 
   const firstName = profile?.first_name ?? (user?.user_metadata?.firstName as string | undefined) ?? user?.email?.split('@')[0] ?? 'User';
   const userName = `${firstName}`.trim() || 'User';
@@ -641,6 +672,8 @@ const DashboardPage = () => {
 
   // Auto-swipe Latest in Tech cards every 5 seconds
   useEffect(() => {
+    if (!latestTechCards.length) return;
+
     const totalPairs = Math.ceil(latestTechCards.length / 2);
     const interval = setInterval(() => {
       setCurrentTechCardIndex((prevIndex) => {
@@ -797,7 +830,7 @@ const DashboardPage = () => {
           </Card>
           <Card
             className="bg-primary/55 p-3 rounded-xl border border-primary/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center gap-2"
-            onClick={() => navigate('/projects')}
+            onClick={() => navigate('/freelancer/contracts')}
           >
             <div className="size-9 rounded-full bg-primary/30 text-black flex items-center justify-center">
               <FileCheck className="w-4 h-4" />
@@ -832,7 +865,7 @@ const DashboardPage = () => {
                   muted
                   playsInline
                 >
-                  <source src={encodeURI("/Video/New Project 29 [4ED1F2C].mp4")} type="video/mp4" />
+                  <source src={encodeURI(DASHBOARD_VIDEO_1)} type="video/mp4" />
                 </video>
               </div>
               <div className="p-3.5 flex-1 flex flex-col">
@@ -880,7 +913,7 @@ const DashboardPage = () => {
                   playsInline
                   poster="/images/dashboard-hero.png"
                 >
-                  <source src={encodeURI("/Video/WhatsApp Video 2026-01-16 at 2.07.43 AM.mp4")} type="video/mp4" />
+                  <source src={encodeURI(DASHBOARD_VIDEO_2)} type="video/mp4" />
                 </video>
               </div>
               <div className="p-3.5 flex-1 flex flex-col">
@@ -927,7 +960,7 @@ const DashboardPage = () => {
                   muted
                   playsInline
                 >
-                  <source src={encodeURI("/Video/WhatsApp Video 2026-01-28 at 6.24.41 PM.mp4")} type="video/mp4" />
+                  <source src={encodeURI(DASHBOARD_VIDEO_3)} type="video/mp4" />
                 </video>
               </div>
               <div className="p-3.5 flex-1 flex flex-col">
@@ -974,7 +1007,7 @@ const DashboardPage = () => {
                   muted
                   playsInline
                 >
-                  <source src={encodeURI("/Video/video1.mp4")} type="video/mp4" />
+                  <source src={encodeURI(DASHBOARD_VIDEO_4)} type="video/mp4" />
                 </video>
               </div>
               <div className="p-3.5 flex-1 flex flex-col">
@@ -1021,7 +1054,7 @@ const DashboardPage = () => {
               Earnings & Profit
             </h3>
           </div>
-          <div ref={earningsSectionRef} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div ref={earningsSectionRef} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Total Earnings – scattered drift path 1 */}
             <div className="bg-primary/55 rounded-xl border border-primary/30 shadow-sm p-4 hover:shadow-md transition-all animate-earnings-drift-1">
               <div className="flex items-center justify-between mb-2">
@@ -1035,26 +1068,7 @@ const DashboardPage = () => {
               </div>
               <p className="text-2xl font-black !text-black">₹{formatEarnings(displayTotal)}</p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] font-bold !text-black bg-primary/30 px-2 py-0.5 rounded-full">+18.5%</span>
-                <span className="text-[10px] font-bold !text-black">vs last month</span>
-              </div>
-            </div>
-
-            {/* Net Profit – scattered drift path 2 */}
-            <div className="bg-secondary/55 rounded-xl border border-secondary-foreground/20 shadow-sm p-4 hover:shadow-md transition-all animate-earnings-drift-2">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="size-8 rounded-lg bg-secondary-foreground/15 flex items-center justify-center [color:#000]">
-                    <TrendingUp className="w-4 h-4 [stroke:#000]" stroke="#000" />
-                  </div>
-                  <span className="text-xs font-bold !text-black uppercase">Net Profit</span>
-                </div>
-                <BarChart3 className="w-4 h-4 !text-black [stroke:black]" stroke="black" />
-              </div>
-              <p className="text-2xl font-black !text-black">₹{formatEarnings(displayNet)}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] font-bold !text-black bg-secondary-foreground/15 px-2 py-0.5 rounded-full">76.5%</span>
-                <span className="text-[10px] font-bold !text-black">profit margin</span>
+                <span className="text-[10px] font-bold !text-black">this month</span>
               </div>
             </div>
 
@@ -1143,54 +1157,71 @@ const DashboardPage = () => {
                   }}
                 >
                   {/* Render cards in pairs */}
-                  {Array.from({ length: Math.ceil(latestTechCards.length / 2) }).map((_, pairIndex) => {
-                    const pairCards = latestTechCards.slice(pairIndex * 2, pairIndex * 2 + 2);
-                    return (
-                      <div key={pairIndex} className="flex gap-4 w-full flex-shrink-0 min-w-full">
-                        {pairCards.map((card) => (
-                          <div
-                            key={card.id}
-                            className="flex-1 rounded-xl overflow-hidden shadow-lg border border-black/20 relative h-[400px] group"
-                          >
-                            {/* Background Image */}
-                            <div className="absolute inset-0">
-                              <img
-                                src={card.backgroundImage}
-                                alt={card.title}
-                                className="w-full h-full object-cover"
-                              />
-                              {/* Gradient overlay for text readability */}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                            </div>
-
-                            {/* Content */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                              {/* Author and Category */}
-                              <div className="flex items-center gap-2 mb-3">
-                                <span className="text-sm font-semibold">{card.author}</span>
-                                <span className="text-xs opacity-70">•</span>
-                                <span className="text-xs opacity-70">{card.category}</span>
+                  {isLoadingNews ? (
+                    <div className="flex gap-4 w-full flex-shrink-0 min-w-full">
+                      <div className="flex-1 rounded-xl overflow-hidden shadow-lg border border-black/20 relative h-[400px] bg-muted animate-pulse"></div>
+                      <div className="flex-1 rounded-xl overflow-hidden shadow-lg border border-black/20 relative h-[400px] bg-muted animate-pulse"></div>
+                    </div>
+                  ) : latestTechCards.length === 0 ? (
+                    <div className="flex gap-4 w-full flex-shrink-0 min-w-full items-center justify-center h-[400px] border border-dashed rounded-xl border-border/50 text-muted-foreground">
+                      No tech news available at the moment.
+                    </div>
+                  ) : (
+                    Array.from({ length: Math.ceil(latestTechCards.length / 2) }).map((_, pairIndex) => {
+                      const pairCards = latestTechCards.slice(pairIndex * 2, pairIndex * 2 + 2);
+                      return (
+                        <div key={pairIndex} className="flex gap-4 w-full flex-shrink-0 min-w-full">
+                          {pairCards.map((card) => (
+                            <a
+                              href={card.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              key={card.id}
+                              className="flex-1 rounded-xl overflow-hidden shadow-lg border border-black/20 relative h-[400px] group cursor-pointer hover:shadow-xl transition-all block"
+                            >
+                              {/* Background Image */}
+                              <div className="absolute inset-0">
+                                <img
+                                  src={card.backgroundImage}
+                                  alt={card.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/images/dashboard-hero.png";
+                                  }}
+                                />
+                                {/* Gradient overlay for text readability */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                               </div>
 
-                              {/* Title */}
-                              <h4 className="text-xl font-bold mb-3 leading-tight line-clamp-2">
-                                {card.title}
-                              </h4>
+                              {/* Content */}
+                              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                                {/* Author and Category */}
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-sm font-semibold truncate max-w-[150px]">{card.author}</span>
+                                  <span className="text-xs opacity-70">•</span>
+                                  <span className="text-xs opacity-70 whitespace-nowrap">{card.category}</span>
+                                </div>
 
-                              {/* Description */}
-                              <p className="text-sm opacity-90 line-clamp-3">
-                                {card.description}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                        {/* If odd number of cards, add empty space for the last pair */}
-                        {pairCards.length === 1 && (
-                          <div className="flex-1" />
-                        )}
-                      </div>
-                    );
-                  })}
+                                {/* Title */}
+                                <h4 className="text-xl font-bold mb-3 leading-tight line-clamp-2 md:line-clamp-3 group-hover:text-primary transition-colors">
+                                  {card.title}
+                                </h4>
+
+                                {/* Description */}
+                                <p className="text-sm opacity-90 line-clamp-3 md:line-clamp-2">
+                                  {card.description}
+                                </p>
+                              </div>
+                            </a>
+                          ))}
+                          {/* If odd number of cards, add empty space for the last pair */}
+                          {pairCards.length === 1 && (
+                            <div className="flex-1" />
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>

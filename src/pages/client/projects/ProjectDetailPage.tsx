@@ -15,6 +15,8 @@ import { getPhasesForCategory } from "@/pages/shared/projects/ProjectTracking/ph
 import { getPhasePaymentStatus } from "@/pages/shared/projects/ProjectTracking/phaseLockingLogic";
 import { ProjectTrackingService } from "@/services/ProjectTrackingService";
 import { ProjectCompletionRejectionDialog } from "@/pages/freelancer/projects/ProjectTracking/ProjectCompletionRejectionDialog";
+import { PROJECT_VIDEOS } from "@/utils/randomVideo";
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 
 interface Project {
   id: string;
@@ -83,6 +85,7 @@ const ClientProjectDetailPage = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tracking'>('overview');
   const [expandedBidId, setExpandedBidId] = useState<string | null>(null);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const { Razorpay } = useRazorpay();
 
   useEffect(() => {
     if (id) {
@@ -160,7 +163,7 @@ const ClientProjectDetailPage = () => {
 
       if (rejectError) throw rejectError;
 
-      toast.success("Bid accepted successfully!");
+      toast.success("Bid accepted successfully! The project has started.");
       fetchBids();
       fetchProjectDetails();
     } catch (error) {
@@ -352,11 +355,106 @@ const ClientProjectDetailPage = () => {
                 onClick={async () => {
                   try {
                     if (!project.id) return;
-                    await ProjectTrackingService.approveProjectCompletion(project.id);
-                    toast.success("Project marked as completed!");
-                    fetchProjectDetails();
-                  } catch (e) {
-                    toast.error("Failed to approve completion.");
+
+                    // 1. Fetch the exact accepted bid amount
+                    const acceptedBid = bids.find(b => b.status === "accepted");
+
+                    if (!acceptedBid) {
+                      toast.error("Could not find the accepted bid to process payment.");
+                      return;
+                    }
+
+                    toast.loading("Preparing secure payment checkout...", { id: "payment-checkout" });
+
+                    // 2. Create Razorpay Order matching accepted bid value
+                    const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
+                      body: { projectId: project.id, amount: acceptedBid.amount, bidId: acceptedBid.id }
+                    });
+
+                    if (orderError) {
+                      toast.dismiss("payment-checkout");
+
+                      // Supabase HTTP errors store the custom JSON response in the context object
+                      let explicitError = orderError.message;
+                      try {
+                        if ((orderError as any)?.context?.json) {
+                          const jsonError = await (orderError as any).context.json();
+                          if (jsonError?.error) explicitError = jsonError.error;
+                        }
+                      } catch (e) {
+                        // silently fallback to generic message if parsing fails
+                      }
+
+                      throw new Error(explicitError || "Failed to initialize payment gateway");
+                    }
+
+                    if (!orderData?.id) {
+                      toast.dismiss("payment-checkout");
+                      throw new Error(orderData?.error || "Failed to retrieve order ID from gateway");
+                    }
+
+                    toast.dismiss("payment-checkout");
+
+                    // 3. Open Razorpay Checkout
+                    const options = {
+                      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "",
+                      amount: orderData.amount,
+                      currency: orderData.currency,
+                      name: "The Unoia",
+                      description: `Payment for Completion: ${project?.title}`,
+                      order_id: orderData.id,
+                      handler: async (response: any) => {
+                        try {
+                          toast.loading("Verifying payment...", { id: "verify-payment" });
+
+                          // 4. Verify Payment Signature
+                          const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+                            body: {
+                              razorpay_order_id: response.razorpay_order_id,
+                              razorpay_payment_id: response.razorpay_payment_id,
+                              razorpay_signature: response.razorpay_signature,
+                              projectId: project.id
+                            }
+                          });
+
+                          if (verifyError || !verifyData?.success) {
+                            throw new Error("Payment verification failed");
+                          }
+
+                          // 5. Success -> Approve Completion!
+                          await ProjectTrackingService.approveProjectCompletion(project.id);
+
+                          toast.dismiss("verify-payment");
+                          toast.success("Payment Received & Project Completed! 🎉");
+
+                          fetchProjectDetails();
+                        } catch (verifyErr: any) {
+                          toast.dismiss("verify-payment");
+                          console.error("Verification error:", verifyErr);
+                          toast.error("Payment received but verification failed. Please contact support.");
+                        }
+                      },
+                      prefill: {
+                        name: user?.user_metadata?.first_name || "Client",
+                        email: user?.email || "",
+                      },
+                      theme: {
+                        color: "#7E63F8",
+                      },
+                    };
+
+                    const rzpay = new window.Razorpay(options);
+
+                    rzpay.on("payment.failed", function (response: any) {
+                      console.error("Payment Failed:", response.error);
+                      toast.error(`Payment failed: ${response.error.description}`);
+                    });
+
+                    rzpay.open();
+                  } catch (e: any) {
+                    toast.dismiss("payment-checkout");
+                    console.error("Approve error:", e);
+                    toast.error(e.message || "Failed to initiate completion payment.");
                   }
                 }}
               >
@@ -403,7 +501,7 @@ const ClientProjectDetailPage = () => {
               <div className="flex flex-col gap-5">
                 <div className="relative w-full max-w-[90%] aspect-[16/9] rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 group">
                   <video
-                    src={encodeURI("/Video/New Project 29 [4ED1F2C].mp4")}
+                    src={encodeURI(PROJECT_VIDEOS[project.id.charCodeAt(0) % PROJECT_VIDEOS.length])}
                     className="absolute inset-0 w-full h-full object-cover"
                     autoPlay
                     loop

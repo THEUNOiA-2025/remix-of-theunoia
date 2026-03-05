@@ -61,7 +61,7 @@ export default function CommunityPage() {
         .from('student_verifications')
         .select('verification_status, college_id, colleges(id, name, short_name, city, state)')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       console.log("User ID:", user?.id);
       console.log("Data:", verification);
@@ -151,7 +151,7 @@ export default function CommunityPage() {
               You need to be a verified student to access the college community features.
               Verify your student status to connect with fellow students from your college.
             </p>
-            <Button 
+            <Button
               onClick={() => navigate('/profile/verify')}
               className="bg-gradient-to-r from-primary to-accent-purple hover:opacity-90 transition-opacity px-8"
             >
@@ -173,7 +173,7 @@ export default function CommunityPage() {
             {/* Decorative elements */}
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            
+
             <div className="relative flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 <GraduationCap className="w-10 h-10 md:w-12 md:h-12 text-white" />
@@ -192,7 +192,7 @@ export default function CommunityPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Stats Row */}
           <div className="grid grid-cols-3 divide-x divide-border">
             <div className="p-4 md:p-6 text-center bg-gradient-to-b from-primary/5 to-transparent">
@@ -214,7 +214,7 @@ export default function CommunityPage() {
               <p className="text-xs md:text-sm text-muted-foreground">Open Tasks</p>
             </div>
             <div className="p-4 md:p-6 flex items-center justify-center">
-              <Button 
+              <Button
                 onClick={() => navigate('/projects')}
                 className="bg-gradient-to-r from-primary to-accent-purple hover:opacity-90 transition-opacity"
               >
@@ -229,14 +229,14 @@ export default function CommunityPage() {
         {/* Tabs */}
         <Tabs defaultValue="tasks" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50 border border-border/60 p-1 h-12 rounded-xl">
-            <TabsTrigger 
+            <TabsTrigger
               value="tasks"
               className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent-purple data-[state=active]:text-white font-medium transition-all"
             >
               <Briefcase className="w-4 h-4 mr-2" />
               Community Tasks
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="members"
               className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent-purple data-[state=active]:text-white font-medium transition-all"
             >
@@ -255,7 +255,7 @@ export default function CommunityPage() {
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   Be the first to post a task that requires physical delivery or on-campus collaboration.
                 </p>
-                <Button 
+                <Button
                   onClick={() => navigate('/projects')}
                   className="bg-gradient-to-r from-primary to-accent-purple hover:opacity-90 transition-opacity"
                 >
@@ -266,24 +266,23 @@ export default function CommunityPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {tasks.map((task, index) => (
-                  <Card 
-                    key={task.id} 
+                  <Card
+                    key={task.id}
                     className="group overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer border"
                     onClick={() => navigate(`/projects/${task.id}`)}
                   >
                     <div className="relative h-44 overflow-hidden">
                       {task.cover_image_url ? (
-                        <img 
-                          src={task.cover_image_url} 
-                          alt={task.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        <img
+                          src={task.cover_image_url}
+                          alt={task.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${
-                          index % 3 === 0 ? 'bg-gradient-to-br from-primary/20 via-accent-purple/10 to-accent-blue/20' :
-                          index % 3 === 1 ? 'bg-gradient-to-br from-accent-purple/20 via-primary/10 to-green/20' :
-                          'bg-gradient-to-br from-accent-blue/20 via-accent/10 to-primary/20'
-                        }`}>
+                        <div className={`w-full h-full flex items-center justify-center ${index % 3 === 0 ? 'bg-gradient-to-br from-primary/20 via-accent-purple/10 to-accent-blue/20' :
+                            index % 3 === 1 ? 'bg-gradient-to-br from-accent-purple/20 via-primary/10 to-green/20' :
+                              'bg-gradient-to-br from-accent-blue/20 via-accent/10 to-primary/20'
+                          }`}>
                           <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
                         </div>
                       )}
@@ -322,7 +321,7 @@ export default function CommunityPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">No members yet</h3>
                 <p className="text-muted-foreground mb-6">Invite your college mates to join the platform!</p>
-                <Button 
+                <Button
                   variant="outline"
                   className="border-primary/50 hover:bg-primary/5"
                 >
@@ -333,14 +332,13 @@ export default function CommunityPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {members.map((member, index) => (
-                  <Card 
-                    key={member.user_id} 
-                    className={`group p-5 hover:border-primary/50 transition-all duration-300 border-l-4 ${
-                      index % 4 === 0 ? 'border-l-primary' :
-                      index % 4 === 1 ? 'border-l-accent-purple' :
-                      index % 4 === 2 ? 'border-l-accent-blue' :
-                      'border-l-green'
-                    }`}
+                  <Card
+                    key={member.user_id}
+                    className={`group p-5 hover:border-primary/50 transition-all duration-300 border-l-4 ${index % 4 === 0 ? 'border-l-primary' :
+                        index % 4 === 1 ? 'border-l-accent-purple' :
+                          index % 4 === 2 ? 'border-l-accent-blue' :
+                            'border-l-green'
+                      }`}
                   >
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="w-14 h-14 border-2 border-border">
@@ -361,9 +359,9 @@ export default function CommunityPage() {
                     {member.bio && (
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-4 italic">"{member.bio}"</p>
                     )}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full hover:bg-primary/5 hover:border-primary/50 transition-all"
                       onClick={(e) => {
                         e.stopPropagation();

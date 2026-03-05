@@ -26,12 +26,12 @@ async function fetchFreeTokenStatus(userId: string): Promise<FreeTokenStatus> {
   // if (error) throw error;
   // return data as FreeTokenStatus;
 
-  const profileRes = await supabase.from('user_profiles').select('first_name, last_name').eq('user_id', userId).single();
+  const profileRes = await supabase.from('user_profiles').select('first_name, last_name').eq('user_id', userId).maybeSingle();
   console.log("User ID:", userId);
   console.log("Data:", profileRes.data);
   console.log("Error:", profileRes.error);
 
-  const verificationRes = await supabase.from('student_verifications').select('verification_status').eq('user_id', userId).single();
+  const verificationRes = await supabase.from('student_verifications').select('verification_status').eq('user_id', userId).maybeSingle();
   console.log("User ID:", userId);
   console.log("Data:", verificationRes.data);
   console.log("Error:", verificationRes.error);

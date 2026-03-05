@@ -28,6 +28,7 @@ import { getPhasesForCategory } from "@/pages/shared/projects/ProjectTracking/ph
 import { getPhasePaymentStatus } from "@/pages/shared/projects/ProjectTracking/phaseLockingLogic";
 import { BidService } from "@/services/bidService";
 import { ProjectTrackingService } from "@/services/ProjectTrackingService";
+import { PROJECT_VIDEOS } from "@/utils/randomVideo";
 import { ProjectCompletionDialog } from "./ProjectTracking/ProjectCompletionDialog";
 import { ProjectCompletionRejectionDialog } from "./ProjectTracking/ProjectCompletionRejectionDialog";
 import { PaymentService } from "@/services/PaymentService";
@@ -184,7 +185,7 @@ const ProjectDetailPage = () => {
         .from("user_profiles")
         .select("first_name, last_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       console.log("User ID:", user?.id);
       console.log("Data:", data);
@@ -221,7 +222,7 @@ const ProjectDetailPage = () => {
         .from('freelancer_access')
         .select('has_access')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       console.log("User ID:", user?.id);
       console.log("Data:", data);
@@ -258,7 +259,7 @@ const ProjectDetailPage = () => {
           .from("user_profiles")
           .select("first_name, last_name, city")
           .eq("user_id", projectRow.user_id)
-          .single();
+          .maybeSingle();
 
         console.log("User ID:", projectRow.user_id);
         console.log("Data:", profileData);
@@ -302,7 +303,6 @@ const ProjectDetailPage = () => {
       navigate('/login');
       return;
     }
-
     if (creditBalance < 10) {
       toast.error("Insufficient credits. You need 10 credits to place a bid.");
       return;
@@ -481,8 +481,9 @@ const ProjectDetailPage = () => {
 
   const isProjectOwner = user?.id === project.user_id;
   const biddingClosed = project.bidding_deadline ? new Date(project.bidding_deadline) < new Date() : false;
-  const canPlaceBid = isVerifiedStudent && !isProjectOwner && project.status === 'open' && !biddingClosed;
+  const canPlaceBid = !isProjectOwner && project.status === 'open' && !biddingClosed;
   const userAlreadyBid = bids.some((bid: Bid) => bid.freelancer_id === user?.id);
+  const isAcceptedFreelancer = bids.some((bid: Bid) => bid.freelancer_id === user?.id && bid.status === 'accepted');
   const projectImage = project.cover_image_url || project.image_url;
   const timeAgo = formatDistanceToNow(new Date(project.created_at), { addSuffix: true });
 
@@ -538,6 +539,62 @@ const ProjectDetailPage = () => {
                   <MessageSquare className="w-4 h-4" />
                   Open Message
                 </button>
+                {canPlaceBid && !userAlreadyBid && (
+                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="inline-flex items-center gap-2 px-4 py-2 bg-primary-purple text-white text-xs font-bold rounded-xl shadow-sm hover:bg-primary-purple/90 transition-colors">
+                        <Coins className="w-4 h-4" />
+                        Place a Bid
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Place a Bid</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="amount" className="text-right">
+                            Bid Amount (₹)
+                          </Label>
+                          <Input
+                            id="amount"
+                            type="number"
+                            placeholder={project?.budget ? `Suggested near ₹${project.budget}` : "Enter your bid amount"}
+                            value={bidFormData.amount}
+                            onChange={(e) => setBidFormData({ ...bidFormData, amount: e.target.value })}
+                          />
+                          {project?.budget && (
+                            <p className="text-xs text-slate-500">
+                              Minimum: ₹{Math.ceil(project.budget * 0.8).toLocaleString()} (80%)<br />
+                              Maximum: ₹{project.budget.toLocaleString()} (100%)
+                            </p>
+                          )}
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="proposal" className="text-right">
+                            Proposal / Cover Letter
+                          </Label>
+                          <Textarea
+                            id="proposal"
+                            placeholder="Why are you the best fit for this project? (Min 20 characters)"
+                            value={bidFormData.proposal}
+                            onChange={(e) => setBidFormData({ ...bidFormData, proposal: e.target.value })}
+                            className="min-h-[150px]"
+                          />
+                        </div>
+                      </div>
+                      <Button onClick={handlePlaceBid} className="w-full bg-primary-purple hover:bg-primary-purple/90">
+                        Submit Bid (10 Credits)
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                )}
+                {userAlreadyBid && (
+                  <Button disabled variant="outline" className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl shadow-sm border-emerald-200 bg-emerald-50 text-emerald-700">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Bid Submitted
+                  </Button>
+                )}
                 <button
                   onClick={() => setCollaborationDialogOpen(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-secondary-yellow text-[#73480d] text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all"
@@ -545,7 +602,7 @@ const ProjectDetailPage = () => {
                   <UserPlus className="w-4 h-4" />
                   Add Collaborator
                 </button>
-                {!isProjectOwner && (
+                {isAcceptedFreelancer && (
                   <button
                     onClick={() => {
                       if (project?.status === 'completion_requested') {
@@ -650,15 +707,17 @@ const ProjectDetailPage = () => {
             >
               Project Overview
             </button>
-            <button
-              onClick={() => setActiveTab('tracking')}
-              className={`px-5 py-2 text-[11px] font-bold tracking-wide transition-all rounded-lg ${activeTab === 'tracking'
-                ? 'bg-primary-purple text-white shadow-md shadow-primary-purple/20'
-                : 'text-slate-900 hover:text-slate-700 bg-transparent'
-                }`}
-            >
-              Project Tracking
-            </button>
+            {isAcceptedFreelancer && (
+              <button
+                onClick={() => setActiveTab('tracking')}
+                className={`px-5 py-2 text-[11px] font-bold tracking-wide transition-all rounded-lg ${activeTab === 'tracking'
+                  ? 'bg-primary-purple text-white shadow-md shadow-primary-purple/20'
+                  : 'text-slate-900 hover:text-slate-700 bg-transparent'
+                  }`}
+              >
+                Project Tracking
+              </button>
+            )}
           </div>
         </div>
 
@@ -675,7 +734,7 @@ const ProjectDetailPage = () => {
               <div className="flex flex-col gap-5">
                 <div className="relative w-full max-w-[90%] aspect-[16/9] rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 group">
                   <video
-                    src={encodeURI("/Video/New Project 29 [4ED1F2C].mp4")}
+                    src={encodeURI(PROJECT_VIDEOS[project.id.charCodeAt(0) % PROJECT_VIDEOS.length])}
                     className="absolute inset-0 w-full h-full object-cover"
                     autoPlay
                     loop

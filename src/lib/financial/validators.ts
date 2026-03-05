@@ -32,9 +32,9 @@ export function validatePAN(pan: string): { valid: boolean; error?: string } {
   }
 
   if (!VALIDATION_PATTERNS.PAN.test(cleanPAN)) {
-    return { 
-      valid: false, 
-      error: 'Invalid PAN format. Must be 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)' 
+    return {
+      valid: false,
+      error: 'Invalid PAN format. Must be 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)'
     };
   }
 
@@ -42,9 +42,9 @@ export function validatePAN(pan: string): { valid: boolean; error?: string } {
   const holderType = cleanPAN.charAt(3);
   const validHolderTypes = ['A', 'B', 'C', 'F', 'G', 'H', 'L', 'J', 'P', 'T', 'K'];
   if (!validHolderTypes.includes(holderType)) {
-    return { 
-      valid: false, 
-      error: 'Invalid PAN holder type character' 
+    return {
+      valid: false,
+      error: 'Invalid PAN holder type character'
     };
   }
 
@@ -63,7 +63,7 @@ export function formatPAN(pan: string): string {
  */
 export function getPANHolderType(pan: string): string {
   if (!pan || pan.length < 4) return 'Unknown';
-  
+
   const holderTypes: Record<string, string> = {
     'A': 'Association of Persons (AOP)',
     'B': 'Body of Individuals (BOI)',
@@ -109,9 +109,9 @@ export function validateGSTIN(gstin: string): { valid: boolean; error?: string }
   }
 
   if (!VALIDATION_PATTERNS.GSTIN.test(cleanGSTIN)) {
-    return { 
-      valid: false, 
-      error: 'Invalid GSTIN format' 
+    return {
+      valid: false,
+      error: 'Invalid GSTIN format'
     };
   }
 
@@ -121,7 +121,7 @@ export function validateGSTIN(gstin: string): { valid: boolean; error?: string }
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 97
   ];
-  
+
   if (!validStateCodes.includes(stateCode)) {
     return { valid: false, error: 'Invalid state code in GSTIN' };
   }
@@ -156,7 +156,7 @@ export function extractPANFromGSTIN(gstin: string): string | null {
  */
 export function getStateFromGSTIN(gstin: string): string {
   if (!gstin || gstin.length < 2) return 'Unknown';
-  
+
   const stateCodes: Record<string, string> = {
     '01': 'Jammu & Kashmir',
     '02': 'Himachal Pradesh',
@@ -200,6 +200,36 @@ export function getStateFromGSTIN(gstin: string): string {
 
   const code = gstin.substring(0, 2);
   return stateCodes[code] || 'Unknown';
+}
+
+// ============================================
+// TAN VALIDATION
+// ============================================
+
+/**
+ * Validate TAN Number format
+ * Format: 4 letters, 5 digits, 1 letter (e.g., DELM12345L)
+ */
+export function validateTAN(tan: string): { valid: boolean; error?: string } {
+  if (!tan || tan.trim() === '') {
+    return { valid: false, error: 'TAN number is required' };
+  }
+
+  const cleanTAN = tan.trim().toUpperCase();
+
+  if (cleanTAN.length !== 10) {
+    return { valid: false, error: 'TAN must be exactly 10 characters' };
+  }
+
+  const tanRegex = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
+  if (!tanRegex.test(cleanTAN)) {
+    return {
+      valid: false,
+      error: 'Invalid TAN format. Must be 4 letters, 5 digits, 1 letter'
+    };
+  }
+
+  return { valid: true };
 }
 
 // ============================================
@@ -277,9 +307,9 @@ export function validateBidAmount(
   if (projectBudget && projectBudget > 0) {
     const minBid = projectBudget * (minPercentage / 100);
     if (amount < minBid) {
-      return { 
-        valid: false, 
-        error: `Minimum bid is ₹${minBid.toLocaleString('en-IN')} (${minPercentage}% of project budget)` 
+      return {
+        valid: false,
+        error: `Minimum bid is ₹${minBid.toLocaleString('en-IN')} (${minPercentage}% of project budget)`
       };
     }
   }

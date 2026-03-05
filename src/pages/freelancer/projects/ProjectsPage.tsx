@@ -34,6 +34,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RatingDialog } from "@/components/RatingDialog";
 import { recordActivity } from "@/utils/dailyStreak";
 
+import { PROJECT_VIDEOS } from "@/utils/randomVideo";
+const PUBLIC_VIDEOS = PROJECT_VIDEOS;
+
 interface Project {
   id: string;
   user_id: string;
@@ -167,7 +170,7 @@ const ProjectsPage = () => {
   const fetchUserData = () => loadProjects();
   const fetchCreditBalance = async () => {
     if (!user?.id) return;
-    const { data } = await supabase.from('freelancer_credits').select('balance').eq('user_id', user.id).single();
+    const { data } = await supabase.from('freelancer_credits').select('balance').eq('user_id', user.id).maybeSingle();
     setCreditBalance(data?.balance || 0);
   };
 
@@ -188,15 +191,15 @@ const ProjectsPage = () => {
         setUserSkills((skills || []).map(s => s.skill_name.toLowerCase()));
 
         // Fetch Credit Balance
-        const { data: credits } = await supabase.from('freelancer_credits').select('balance').eq('user_id', user.id).single();
+        const { data: credits } = await supabase.from('freelancer_credits').select('balance').eq('user_id', user.id).maybeSingle();
         setCreditBalance(credits?.balance || 0);
 
         // Fetch user type only if needed (already in state? maybe good to refresh)
-        const { data: profile } = await supabase.from('user_profiles').select('user_type').eq('user_id', user.id).single();
+        const { data: profile } = await supabase.from('user_profiles').select('user_type').eq('user_id', user.id).maybeSingle();
         setIsStudentUser(profile?.user_type === 'student');
 
         // Fetch My Projects based on Lifecycle
-        if (activeTab === 'my-projects') {
+        if (activeTab === 'my-projects' || activeTab === 'completed') {
           // Bids (Applied)
           const myBids = await BidService.getFreelancerBids(user.id);
           const bidProjectsFormatted = myBids.map(bid => ({
@@ -236,10 +239,10 @@ const ProjectsPage = () => {
   // Helper to check verification (moved out of useEffect for cleanliness)
   const checkVerification = async (userId: string) => {
     try {
-      const { data } = await supabase.from('freelancer_access').select('has_access').eq('user_id', userId).single();
+      const { data } = await supabase.from('freelancer_access').select('has_access').eq('user_id', userId).maybeSingle();
       setIsVerifiedStudent(data?.has_access || false);
 
-      const { data: edu } = await supabase.from('student_verifications').select('college_id').eq('user_id', userId).eq('verification_status', 'approved').single();
+      const { data: edu } = await supabase.from('student_verifications').select('college_id').eq('user_id', userId).eq('verification_status', 'approved').maybeSingle();
       setUserCollegeId(edu?.college_id || null);
     } catch (e) { console.error(e); }
   };
@@ -625,15 +628,16 @@ const ProjectsPage = () => {
 
     return (
       <div key={project.id} className="group bg-white dark:bg-white/5 rounded-[9px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-[#f1f0f5] dark:border-white/5 flex flex-col h-full">
-        <div className="relative h-[126px] overflow-hidden">
-          {(project.cover_image_url || project.image_url) ? (
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-              style={{ backgroundImage: `url("${project.cover_image_url || project.image_url}")` }}
-            ></div>
-          ) : (
-            <div className={`absolute inset-0 bg-gradient-to-br ${gradientColors[gradientIndex]} transition-transform duration-500 group-hover:scale-110`}></div>
-          )}
+        <div className="relative h-[126px] overflow-hidden bg-slate-200">
+          <video
+            src={encodeURI(PUBLIC_VIDEOS[project.id.charCodeAt(0) % PUBLIC_VIDEOS.length])}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
           <div className="absolute top-2.5 left-2.5 flex gap-1.5">
             {!biddingClosed && (
@@ -754,17 +758,16 @@ const ProjectsPage = () => {
 
   const renderPortfolioCard = (project: Project, showActions: boolean = false) => (
     <div key={project.id} className="group bg-white dark:bg-white/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-[#f1f0f5] dark:border-white/5 flex flex-col h-full">
-      <div className="relative h-[144px] overflow-hidden bg-muted">
-        {(project.cover_image_url || project.image_url) ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-            style={{ backgroundImage: `url("${project.cover_image_url || project.image_url}")` }}
-          ></div>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <ImageIcon className="w-11 h-11 text-gray-300" />
-          </div>
-        )}
+      <div className="relative h-[144px] overflow-hidden bg-slate-200">
+        <video
+          src={encodeURI(PUBLIC_VIDEOS[project.id.charCodeAt(0) % PUBLIC_VIDEOS.length])}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
       </div>
       <div className="p-4.5 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-1.5">
@@ -923,8 +926,7 @@ const ProjectsPage = () => {
               </div>
               <div
                 ref={scrollContainerRef}
-                className="flex gap-5 overflow-x-auto pb-4 -mx-2 px-2 [&::-webkit-scrollbar]:hidden"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex gap-5 overflow-x-auto pb-4 -mx-2 px-2"
               >
                 {recommendedProjects.length > 0 ? (
                   recommendedProjects.map(project => renderRecommendedCard(project))

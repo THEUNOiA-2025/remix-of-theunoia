@@ -62,13 +62,8 @@ const PUBLIC_IMAGES = [
   "/images/dashboard-hero.png",
   "/images/dashboard-preview.png",
 ];
-const PUBLIC_VIDEOS = [
-  "/Video/video1.mp4",
-  "/Video/video 3.mp4",
-  "/Video/WhatsApp Video 2026-01-16 at 2.07.43 AM.mp4",
-  "/Video/WhatsApp Video 2026-01-28 at 6.24.41 PM.mp4",
-  "/Video/New Project 29 [4ED1F2C].mp4",
-];
+import { PROJECT_VIDEOS } from "@/utils/randomVideo";
+const PUBLIC_VIDEOS = PROJECT_VIDEOS;
 
 const TABS = [
   { value: "all", label: "All Projects" },
@@ -162,7 +157,7 @@ const ProjectsPage = () => {
           // Determine status
           let status: ProjectStatus = "open_for_bidding";
           const hasAcceptedBid = acceptedBids?.some((b) => b.project_id === p.id);
-          
+
           if (p.status === "completed") {
             status = "completed";
           } else if (hasAcceptedBid || p.status === "in_progress") {

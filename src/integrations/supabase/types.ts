@@ -452,16 +452,23 @@ export type Database = {
           email: string
           first_name: string
           gender: string | null
+          residential_address: string | null
+          registered_address: string | null
           id: string
           last_name: string
           phone: string | null
           pin_code: string | null
           profile_completed: boolean | null
+          contract_signed: boolean | null
+          client_contract_signed: boolean | null
           profile_picture_url: string | null
           updated_at: string | null
           user_id: string
           user_type: string | null
           website: string | null
+          pan: string | null
+          gstin: string | null
+          signature_url: string | null
         }
         Insert: {
           billing_address?: string | null
@@ -472,16 +479,23 @@ export type Database = {
           email: string
           first_name: string
           gender?: string | null
+          residential_address?: string | null
+          registered_address?: string | null
           id?: string
           last_name: string
           phone?: string | null
           pin_code?: string | null
           profile_completed?: boolean | null
+          contract_signed?: boolean | null
+          client_contract_signed?: boolean | null
           profile_picture_url?: string | null
           updated_at?: string | null
           user_id: string
           user_type?: string | null
           website?: string | null
+          pan?: string | null
+          gstin?: string | null
+          signature_url?: string | null
         }
         Update: {
           billing_address?: string | null
@@ -492,16 +506,22 @@ export type Database = {
           email?: string
           first_name?: string
           gender?: string | null
+          residential_address?: string | null
+          registered_address?: string | null
           id?: string
           last_name?: string
           phone?: string | null
           pin_code?: string | null
           profile_completed?: boolean | null
+          contract_signed?: boolean | null
+          client_contract_signed?: boolean | null
           profile_picture_url?: string | null
           updated_at?: string | null
           user_id?: string
           user_type?: string | null
           website?: string | null
+          pan?: string | null
+          gstin?: string | null
         }
         Relationships: []
       }

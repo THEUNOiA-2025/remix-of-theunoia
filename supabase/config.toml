@@ -1,4 +1,4 @@
-project_id = "idvwckpcsktnplnvwvba"
+project_id = "oeleyonqaowubcfreqoy"
 
 [functions.bulk-import-colleges]
 verify_jwt = true
@@ -16,4 +16,10 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.verify-razorpay-payment]
+verify_jwt = true
+
+[functions.create-razorpay-fund-account]
+verify_jwt = true
+
+[functions.process-freelancer-payout]
 verify_jwt = true

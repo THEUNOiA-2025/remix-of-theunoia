@@ -37,50 +37,23 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // Update payment record
+        // We will insert/update the `payments` record to track this transaction securely
         const { error: paymentError } = await supabase
             .from("payments")
-            .update({
-                status: "captured",
+            .upsert({
+                razorpay_order_id: razorpay_order_id,
                 razorpay_payment_id: razorpay_payment_id,
+                status: "captured",
                 updated_at: new Date().toISOString(),
-            })
-            .eq("razorpay_order_id", razorpay_order_id);
+            }, { onConflict: 'razorpay_order_id' });
 
         if (paymentError) {
-            console.error("Error updating payment record:", paymentError);
-            throw new Error("Failed to update payment record");
-        }
-
-        // Get project_id from payment record
-        const { data: paymentData, error: fetchError } = await supabase
-            .from("payments")
-            .select("project_id")
-            .eq("razorpay_order_id", razorpay_order_id)
-            .single();
-
-        if (fetchError || !paymentData) {
-            console.error("Error fetching payment record:", fetchError);
-            throw new Error("Failed to fetch payment record");
-        }
-
-        // Update project status to completed
-        const { error: projectError } = await supabase
-            .from("user_projects")
-            .update({
-                status: "completed",
-                completed_at: new Date().toISOString(),
-            })
-            .eq("id", paymentData.project_id);
-
-        if (projectError) {
-            console.error("Error updating project status:", projectError);
-            // We don't throw here to avoid failing the verification response, 
-            // but this should be logged and potentially alerted on.
+            console.error("Error logging payment record:", paymentError);
+            // Non-blocking but good to log
         }
 
         return new Response(
-            JSON.stringify({ success: true }),
+            JSON.stringify({ success: true, verified: true }),
             {
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
                 status: 200,

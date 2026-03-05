@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,9 @@ export const ProjectCompletionDialog = ({ open, onOpenChange, projectId, onSucce
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Submit Project for Completion</DialogTitle>
+                    <DialogDescription>
+                        Provide final deliverables and notes to the client to request project completion.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">

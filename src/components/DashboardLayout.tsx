@@ -121,10 +121,6 @@ export const DashboardLayout = () => {
             .eq('user_id', user.id)
             .single();
 
-          console.log("User ID:", user?.id);
-          console.log("Data:", data);
-          console.log("Error:", error);
-
           if (error) throw error;
           setProfile(data ?? null);
 
@@ -133,11 +129,7 @@ export const DashboardLayout = () => {
             .from('student_verifications')
             .select('verification_status')
             .eq('user_id', user.id)
-            .single();
-
-          console.log("User ID:", user?.id);
-          console.log("Data:", verification);
-          console.log("Error:", verificationError);
+            .maybeSingle();
 
           setIsVerifiedStudent(verification?.verification_status === 'approved');
         } catch (error) {
@@ -163,13 +155,13 @@ export const DashboardLayout = () => {
           .select('*', { count: 'exact', head: true })
           .eq('is_read', false)
           .neq('sender_id', user.id);
-        
+
         setUnreadMessages(msgCount || 0);
 
         // Get recent bids on user's projects (last 7 days)
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        
+
         const { data: recentBids } = await supabase
           .from('bids')
           .select(`

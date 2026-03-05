@@ -35,6 +35,7 @@ import {
 import { PhaseState, PhaseStatus } from '@/pages/shared/projects/ProjectTracking/phaseLockingTypes';
 
 import { Textarea } from "@/components/ui/textarea";
+import { useRazorpay } from '@/hooks/useRazorpay';
 
 interface ClientProjectTrackingBoardProps {
   projectId: string;
@@ -43,6 +44,7 @@ interface ClientProjectTrackingBoardProps {
 
 export const ClientProjectTrackingBoard = ({ projectId, projectCategory }: ClientProjectTrackingBoardProps) => {
   const { user } = useAuth();
+  const { initializePayment, isProcessing } = useRazorpay();
   const phases = useMemo(() => {
     const p = getPhasesForCategory(projectCategory);
     console.log('UI Expected Phases for category:', projectCategory, p);
@@ -415,8 +417,8 @@ export const ClientProjectTrackingBoard = ({ projectId, projectCategory }: Clien
       {/* Project Overview */}
       <div className="space-y-3">
         <h3 className="text-xs font-bold text-slate-900">Project overview</h3>
-        <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <div className="flex gap-3 min-w-max [&::-webkit-scrollbar]:hidden">
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-3 min-w-max">
             {phaseProgress.map((phase, index) => {
               const color = phaseColors[index % phaseColors.length];
               const paymentStatus = getPhasePaymentStatus(index, phases.length, activePhaseIndex);
@@ -450,8 +452,17 @@ export const ClientProjectTrackingBoard = ({ projectId, projectCategory }: Clien
                     </div>
                   </div>
                   <div className="mb-1.5">
-                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${paymentClass}`}>
-                      Payment: {paymentLabel}
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${paymentClass} flex items-center justify-between`}>
+                      <span>Payment: {paymentLabel}</span>
+                      {paymentStatus === 'pending' && (
+                        <button
+                          onClick={() => initializePayment(projectId)}
+                          disabled={isProcessing}
+                          className="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded leading-none transition-colors border border-transparent hover:border-blue-800 disabled:opacity-50"
+                        >
+                          {isProcessing ? 'Processing' : 'Pay Now'}
+                        </button>
+                      )}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -476,8 +487,8 @@ export const ClientProjectTrackingBoard = ({ projectId, projectCategory }: Clien
       {/* Kanban Board - Full Width */}
       <div>
         <h3 className="text-xs font-bold text-slate-900 mb-3">Kanban Board</h3>
-        <div className="w-full overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <div className="flex gap-3.5 min-w-max [&::-webkit-scrollbar]:hidden">
+        <div className="w-full overflow-x-auto pb-4">
+          <div className="flex gap-3.5 min-w-max">
             {phases.map((phase, index) => {
               const tasksForPhase = getTasksForPhase(phase);
               const phaseState = phaseStates.find(ps => ps.phase_name === phase);

@@ -22,9 +22,10 @@ import ContactPage from "./pages/ContactPage";
 import TermsAndConditionsPage from "./pages/TermsAndConditionsPage";
 
 // Freelancer-specific pages (not role-switched)
-const FreelancerEditProfilePage = lazy(() => import("./pages/freelancer/profile/EditProfilePage"));
 const IndependentProjectsPage = lazy(() => import("./pages/freelancer/profile/IndependentProjectsPage"));
 const StudentVerificationPage = lazy(() => import("./pages/freelancer/verification/StudentVerificationPage"));
+const ContractsPage = lazy(() => import("./pages/freelancer/contracts/ContractsPage"));
+const ClientContractsPage = lazy(() => import("./pages/client/contracts/ClientContractsPage"));
 
 // Shared pages
 const ProjectDetailWrapper = lazy(() => import("./pages/shared/projects/ProjectDetailWrapper"));
@@ -99,17 +100,17 @@ const App = () => (
               } />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              
+
               {/* Project detail route - shows client or freelancer view based on ownership */}
-              <Route 
-                path="/projects/:id" 
+              <Route
+                path="/projects/:id"
                 element={
                   <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                     <ProjectDetailWrapper />
                   </Suspense>
-                } 
+                }
               />
-              
+
               {/* Dashboard routes with shared layout */}
               <Route element={<DashboardLayout />}>
                 <Route
@@ -120,41 +121,53 @@ const App = () => (
                     </Suspense>
                   }
                 />
-                <Route 
-                  path="/projects" 
-                  element={<RoleBasedRoute pageType="projects" />} 
+                <Route
+                  path="/projects"
+                  element={<RoleBasedRoute pageType="projects" />}
                 />
-                <Route 
-                  path="/dashboard" 
-                  element={<RoleBasedRoute pageType="dashboard" />} 
+                <Route
+                  path="/dashboard"
+                  element={<RoleBasedRoute pageType="dashboard" />}
                 />
-                <Route 
-                  path="/profile" 
-                  element={<RoleBasedRoute pageType="profile" />} 
+                <Route
+                  path="/profile"
+                  element={<RoleBasedRoute pageType="profile" />}
                 />
-                <Route 
-                  path="/profile/edit" 
-                  element={
-                    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-                      <FreelancerEditProfilePage />
-                    </Suspense>
-                  } 
+                <Route
+                  path="/profile/edit"
+                  element={<RoleBasedRoute pageType="profile_edit" />}
                 />
-                <Route 
-                  path="/profile/portfolio" 
+                <Route
+                  path="/profile/portfolio"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <IndependentProjectsPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/profile/verify" 
+                <Route
+                  path="/profile/verify"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <StudentVerificationPage />
                     </Suspense>
-                  } 
+                  }
+                />
+                <Route
+                  path="/freelancer/contracts"
+                  element={
+                    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                      <ContractsPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/client/contracts"
+                  element={
+                    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                      <ClientContractsPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/bids"
@@ -162,7 +175,7 @@ const App = () => (
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <BidsPage />
                     </Suspense>
-                  } 
+                  }
                 />
                 <Route
                   path="/bid-preview"
@@ -170,55 +183,55 @@ const App = () => (
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <BidPayoutPreviewPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/messages" 
+                <Route
+                  path="/messages"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <MessagesPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/calendar" 
+                <Route
+                  path="/calendar"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <CalendarPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/community" 
-                  element={<RoleBasedRoute pageType="community" />} 
+                <Route
+                  path="/community"
+                  element={<RoleBasedRoute pageType="community" />}
                 />
-                <Route 
-                  path="/leadership" 
-                  element={<RoleBasedRoute pageType="leadership" />} 
+                <Route
+                  path="/leadership"
+                  element={<RoleBasedRoute pageType="leadership" />}
                 />
-                <Route 
-                  path="/buy-credits" 
+                <Route
+                  path="/buy-credits"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <BuyCreditsPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/checkout" 
+                <Route
+                  path="/checkout"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <CheckoutPage />
                     </Suspense>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/freelancer/:userId" 
+                <Route
+                  path="/freelancer/:userId"
                   element={
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <FreelancerViewPage />
                     </Suspense>
-                  } 
+                  }
                 />
               </Route>
 
@@ -260,7 +273,7 @@ const App = () => (
                   </Suspense>
                 } />
               </Route>
-              
+
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

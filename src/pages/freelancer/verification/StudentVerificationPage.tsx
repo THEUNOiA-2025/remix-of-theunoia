@@ -25,14 +25,14 @@ const StudentVerificationPage = () => {
   const [statesLoading, setStatesLoading] = useState(false);
   const [selectedState, setSelectedState] = useState<string>("");
   const [stateOpen, setStateOpen] = useState(false);
-  
+
   // College search state
   const [colleges, setColleges] = useState<any[]>([]);
   const [collegesLoading, setCollegesLoading] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState<string>("");
   const [selectedCollegeData, setSelectedCollegeData] = useState<any>(null);
   const [collegeOpen, setCollegeOpen] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     instituteEmail: "",
     enrollmentId: "",
@@ -96,17 +96,17 @@ const StudentVerificationPage = () => {
 
   const fetchData = async () => {
     if (!user?.id) return;
-    
+
     try {
       // Fetch states first using RPC
       fetchStates();
-      
-      const profileRes = await supabase.from("user_profiles").select("*").eq("user_id", user.id).single();
+
+      const profileRes = await supabase.from("user_profiles").select("*").eq("user_id", user.id).maybeSingle();
       console.log("User ID:", user?.id);
       console.log("Data:", profileRes.data);
       console.log("Error:", profileRes.error);
 
-      const verificationRes = await supabase.from("student_verifications").select("*, colleges(*)").eq("user_id", user.id).single();
+      const verificationRes = await supabase.from("student_verifications").select("*, colleges(*)").eq("user_id", user.id).maybeSingle();
       console.log("User ID:", user?.id);
       console.log("Data:", verificationRes.data);
       console.log("Error:", verificationRes.error);
@@ -139,14 +139,14 @@ const StudentVerificationPage = () => {
           setSelectedCollegeData(verificationRow.colleges);
           setSelectedState(verificationRow.colleges?.state || "");
         }
-        
+
         // Load ID card if exists
         if (verificationRow.id_card_url) {
           try {
             const { data: signedUrlData } = await supabase.storage
               .from('student-id-cards')
               .createSignedUrl(verificationRow.id_card_url, 3600);
-            
+
             if (signedUrlData?.signedUrl) {
               setIdCardPreview(signedUrlData.signedUrl);
             }
@@ -281,7 +281,7 @@ const StudentVerificationPage = () => {
     setVerifyingCode(true);
     try {
       const response = await supabase.functions.invoke('verify-email-code', {
-        body: { 
+        body: {
           email: formData.instituteEmail,
           code: otpCode,
         },
@@ -298,7 +298,7 @@ const StudentVerificationPage = () => {
       setEmailVerificationStep('verified');
       setCodeExpiresAt(null);
       toast.success("Email verified successfully!");
-      
+
       // Refresh verification data
       fetchData();
     } catch (error: any) {
@@ -341,7 +341,7 @@ const StudentVerificationPage = () => {
     }
 
     setIdCardFile(file);
-    
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setIdCardPreview(reader.result as string);
@@ -361,7 +361,7 @@ const StudentVerificationPage = () => {
     try {
       const fileExt = idCardFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
+
       const { data, error } = await supabase.storage
         .from('student-id-cards')
         .upload(fileName, idCardFile, {
@@ -402,7 +402,7 @@ const StudentVerificationPage = () => {
     setLoading(true);
     try {
       let idCardUrl = idCardPreview || null;
-      
+
       if (idCardFile) {
         const uploadedUrl = await uploadIdCard();
         if (uploadedUrl) {
@@ -468,10 +468,10 @@ const StudentVerificationPage = () => {
     }
   };
 
-  const canSubmit = !verification || 
-                    verification.verification_status === "rejected" ||
-                    !verification.college_id ||
-                    isEditingCollege;
+  const canSubmit = !verification ||
+    verification.verification_status === "rejected" ||
+    !verification.college_id ||
+    isEditingCollege;
   const statusInfo = verification ? getStatusInfo(verification.verification_status) : null;
 
   // Get display text for selected college
@@ -488,470 +488,469 @@ const StudentVerificationPage = () => {
 
   return (
     <main className="flex-1 p-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/profile")}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Profile
-        </Button>
+      <Button
+        variant="ghost"
+        onClick={() => navigate("/profile")}
+        className="mb-6"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Profile
+      </Button>
 
-        <Card className="max-w-2xl rounded-2xl border-border/40">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Student Verification</CardTitle>
-                <CardDescription>
-                  Verify your student status to access freelancer features
-                </CardDescription>
-              </div>
-              {statusInfo && (
-                <Badge variant={statusInfo.variant} className="flex items-center gap-1">
-                  {statusInfo.icon}
-                  {statusInfo.text}
-                </Badge>
-              )}
+      <Card className="max-w-2xl rounded-2xl border-border/40">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Student Verification</CardTitle>
+              <CardDescription>
+                Verify your student status to access freelancer features
+              </CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {verification?.verification_status === "pending" && (
-              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  Your verification request is being reviewed. We'll notify you once it's processed.
-                </p>
-              </div>
+            {statusInfo && (
+              <Badge variant={statusInfo.variant} className="flex items-center gap-1">
+                {statusInfo.icon}
+                {statusInfo.text}
+              </Badge>
             )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {verification?.verification_status === "pending" && (
+            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Your verification request is being reviewed. We'll notify you once it's processed.
+              </p>
+            </div>
+          )}
 
-            {verification?.verification_status === "approved" && verification.college_id && !isEditingCollege && (
-              <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <p className="text-sm text-green-800 dark:text-green-200">
-                  Your student status has been verified! You now have access to all freelancer features.
-                </p>
+          {verification?.verification_status === "approved" && verification.college_id && !isEditingCollege && (
+            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <p className="text-sm text-green-800 dark:text-green-200">
+                Your student status has been verified! You now have access to all freelancer features.
+              </p>
+            </div>
+          )}
+
+          {isEditingCollege && (
+            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                Updating College Information
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Select your new college and submit. Your verification will be reviewed again if necessary.
+              </p>
+            </div>
+          )}
+
+          {verification?.verification_status === "approved" && !verification.college_id && (
+            <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
+                Update Required
+              </p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                Please select your college to complete your verification and access community features.
+              </p>
+            </div>
+          )}
+
+          {verification?.verification_status === "rejected" && verification.rejection_reason && (
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">
+                Verification Rejected
+              </p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                {verification.rejection_reason}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="college">College/University *</Label>
+                {verification?.verification_status === "approved" && verification.college_id && !isEditingCollege && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingCollege(true)}
+                    className="h-8 gap-1"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </Button>
+                )}
+                {isEditingCollege && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditingCollege(false);
+                      setSelectedCollege(verification?.college_id || "");
+                      if (verification?.colleges) {
+                        setSelectedCollegeData(verification.colleges);
+                        setSelectedState(verification.colleges.state || "");
+                      }
+                    }}
+                    className="h-8"
+                  >
+                    Cancel
+                  </Button>
+                )}
               </div>
-            )}
-
-            {isEditingCollege && (
-              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
-                  Updating College Information
-                </p>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Select your new college and submit. Your verification will be reviewed again if necessary.
-                </p>
-              </div>
-            )}
-
-            {verification?.verification_status === "approved" && !verification.college_id && (
-              <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
-                  Update Required
-                </p>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Please select your college to complete your verification and access community features.
-                </p>
-              </div>
-            )}
-
-            {verification?.verification_status === "rejected" && verification.rejection_reason && (
-              <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">
-                  Verification Rejected
-                </p>
-                <p className="text-sm text-red-700 dark:text-red-300">
-                  {verification.rejection_reason}
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="college">College/University *</Label>
-                  {verification?.verification_status === "approved" && verification.college_id && !isEditingCollege && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditingCollege(true)}
-                      className="h-8 gap-1"
-                    >
-                      <Pencil className="h-3 w-3" />
-                      Edit
-                    </Button>
-                  )}
-                  {isEditingCollege && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setIsEditingCollege(false);
-                        setSelectedCollege(verification?.college_id || "");
-                        if (verification?.colleges) {
-                          setSelectedCollegeData(verification.colleges);
-                          setSelectedState(verification.colleges.state || "");
-                        }
-                      }}
-                      className="h-8"
-                    >
-                      Cancel
-                    </Button>
-                  )}
+              {verification?.verification_status === "approved" && verification.college_id && verification.colleges && !isEditingCollege ? (
+                <div className="p-3 border border-border rounded-md bg-muted/50">
+                  <p className="text-sm font-medium">
+                    {verification.colleges.name} - {verification.colleges.city}, {verification.colleges.state}
+                  </p>
                 </div>
-                {verification?.verification_status === "approved" && verification.college_id && verification.colleges && !isEditingCollege ? (
-                  <div className="p-3 border border-border rounded-md bg-muted/50">
-                    <p className="text-sm font-medium">
-                      {verification.colleges.name} - {verification.colleges.city}, {verification.colleges.state}
-                    </p>
+              ) : (
+                <div className="space-y-3">
+                  {/* State Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="state" className="text-sm text-muted-foreground">Step 1: Select State</Label>
+                    <Popover open={stateOpen} onOpenChange={setStateOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={stateOpen}
+                          disabled={!canSubmit || statesLoading}
+                          className="w-full justify-between bg-background font-normal"
+                        >
+                          {statesLoading ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Loading states...
+                            </span>
+                          ) : selectedState ? (
+                            selectedState
+                          ) : (
+                            "Select state first..."
+                          )}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search states..." />
+                          <CommandList className="max-h-[300px]">
+                            <CommandEmpty>No state found.</CommandEmpty>
+                            <CommandGroup>
+                              {states.map((state) => (
+                                <CommandItem
+                                  key={state}
+                                  value={state}
+                                  onSelect={() => handleStateChange(state)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedState === state ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {state}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* State Selection */}
-                    <div className="space-y-2">
-                      <Label htmlFor="state" className="text-sm text-muted-foreground">Step 1: Select State</Label>
-                      <Popover open={stateOpen} onOpenChange={setStateOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={stateOpen}
-                            disabled={!canSubmit || statesLoading}
-                            className="w-full justify-between bg-background font-normal"
-                          >
-                            {statesLoading ? (
-                              <span className="flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Loading states...
-                              </span>
-                            ) : selectedState ? (
-                              selectedState
+
+                  {/* College Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="college" className="text-sm text-muted-foreground">Step 2: Search & Select College</Label>
+                    <Popover open={collegeOpen} onOpenChange={setCollegeOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={collegeOpen}
+                          disabled={!canSubmit || !selectedState}
+                          className="w-full justify-between bg-background font-normal"
+                        >
+                          {getSelectedCollegeDisplay() || (
+                            selectedState ? "Type to search colleges..." : "Select state first..."
+                          )}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                        <Command shouldFilter={true}>
+                          <CommandInput
+                            placeholder="Search your college..."
+                          />
+                          <CommandList className="max-h-[300px]">
+                            {collegesLoading ? (
+                              <div className="flex items-center justify-center py-6">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                <span className="ml-2 text-sm text-muted-foreground">Loading colleges...</span>
+                              </div>
+                            ) : colleges.length === 0 ? (
+                              <CommandEmpty>No colleges found for this state.</CommandEmpty>
                             ) : (
-                              "Select state first..."
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command>
-                            <CommandInput placeholder="Search states..." />
-                            <CommandList className="max-h-[300px]">
-                              <CommandEmpty>No state found.</CommandEmpty>
-                              <CommandGroup>
-                                {states.map((state) => (
+                              <CommandGroup heading={`${colleges.length} colleges found`}>
+                                {colleges.map((college) => (
                                   <CommandItem
-                                    key={state}
-                                    value={state}
-                                    onSelect={() => handleStateChange(state)}
+                                    key={college.id}
+                                    value={`${college.name} ${college.city}`}
+                                    onSelect={() => handleCollegeSelect(college)}
                                   >
                                     <Check
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        selectedState === state ? "opacity-100" : "opacity-0"
+                                        selectedCollege === college.id ? "opacity-100" : "opacity-0"
                                       )}
                                     />
-                                    {state}
+                                    <div className="flex flex-col">
+                                      <span>{college.name}</span>
+                                      <span className="text-xs text-muted-foreground">{college.city}</span>
+                                    </div>
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {/* College Selection */}
-                    <div className="space-y-2">
-                      <Label htmlFor="college" className="text-sm text-muted-foreground">Step 2: Search & Select College</Label>
-                      <Popover open={collegeOpen} onOpenChange={setCollegeOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={collegeOpen}
-                            disabled={!canSubmit || !selectedState}
-                            className="w-full justify-between bg-background font-normal"
-                          >
-                            {getSelectedCollegeDisplay() || (
-                              selectedState ? "Type to search colleges..." : "Select state first..."
                             )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command shouldFilter={true}>
-                            <CommandInput 
-                              placeholder="Search your college..." 
-                            />
-                            <CommandList className="max-h-[300px]">
-                              {collegesLoading ? (
-                                <div className="flex items-center justify-center py-6">
-                                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                                  <span className="ml-2 text-sm text-muted-foreground">Loading colleges...</span>
-                                </div>
-                              ) : colleges.length === 0 ? (
-                                <CommandEmpty>No colleges found for this state.</CommandEmpty>
-                              ) : (
-                                <CommandGroup heading={`${colleges.length} colleges found`}>
-                                  {colleges.map((college) => (
-                                    <CommandItem
-                                      key={college.id}
-                                      value={`${college.name} ${college.city}`}
-                                      onSelect={() => handleCollegeSelect(college)}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          selectedCollege === college.id ? "opacity-100" : "opacity-0"
-                                        )}
-                                      />
-                                      <div className="flex flex-col">
-                                        <span>{college.name}</span>
-                                        <span className="text-xs text-muted-foreground">{college.city}</span>
-                                      </div>
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              )}
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Can't find your college? Contact support to add it.
+              </p>
+            </div>
+
+            {/* Institute Email with OTP Verification */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="instituteEmail">
+                  Institute Email {emailVerificationStep !== 'verified' && !idCardFile && !idCardPreview && "*"}
+                </Label>
+                {emailVerificationStep === 'verified' && (
+                  <Badge variant="default" className="flex items-center gap-1 bg-green-600">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </Badge>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  Can't find your college? Contact support to add it.
-                </p>
               </div>
 
-              {/* Institute Email with OTP Verification */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="instituteEmail">
-                    Institute Email {emailVerificationStep !== 'verified' && !idCardFile && !idCardPreview && "*"}
-                  </Label>
-                  {emailVerificationStep === 'verified' && (
-                    <Badge variant="default" className="flex items-center gap-1 bg-green-600">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Verified
-                    </Badge>
-                  )}
+              {emailVerificationStep === 'verified' ? (
+                <div className="p-3 border border-green-200 dark:border-green-800 rounded-md bg-green-50 dark:bg-green-950/20">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                      {formData.instituteEmail}
+                    </span>
+                  </div>
                 </div>
-                
-                {emailVerificationStep === 'verified' ? (
-                  <div className="p-3 border border-green-200 dark:border-green-800 rounded-md bg-green-50 dark:bg-green-950/20">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-green-600" />
-                      <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                        {formData.instituteEmail}
-                      </span>
-                    </div>
+              ) : emailVerificationStep === 'sent' ? (
+                <div className="space-y-4">
+                  <div className="p-3 border border-border rounded-md bg-muted/50">
+                    <p className="text-sm text-muted-foreground mb-1">Verification code sent to:</p>
+                    <p className="text-sm font-medium">{formData.instituteEmail}</p>
                   </div>
-                ) : emailVerificationStep === 'sent' ? (
-                  <div className="space-y-4">
-                    <div className="p-3 border border-border rounded-md bg-muted/50">
-                      <p className="text-sm text-muted-foreground mb-1">Verification code sent to:</p>
-                      <p className="text-sm font-medium">{formData.instituteEmail}</p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Enter 6-digit code</Label>
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <InputOTP
-                          maxLength={6}
-                          value={otpCode}
-                          onChange={setOtpCode}
-                          disabled={verifyingCode}
-                        >
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
-                          </InputOTPGroup>
-                        </InputOTP>
-                        <Button
-                          onClick={handleVerifyCode}
-                          disabled={otpCode.length !== 6 || verifyingCode}
-                          className="sm:w-auto"
-                        >
-                          {verifyingCode ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Verifying...
-                            </>
-                          ) : (
-                            "Verify"
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Code expires in: <span className="font-medium text-foreground">{getTimeRemaining()}</span>
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleResendCode}
-                        disabled={resendCooldown > 0 || sendingCode}
-                        className="gap-1"
-                      >
-                        <RefreshCw className={cn("h-3 w-3", sendingCode && "animate-spin")} />
-                        {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                      </Button>
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEmailVerificationStep('input');
-                        setOtpCode("");
-                        setCodeExpiresAt(null);
-                      }}
-                    >
-                      Change email
-                    </Button>
-                  </div>
-                ) : (
+
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Input
-                        id="instituteEmail"
-                        type="email"
-                        value={formData.instituteEmail}
-                        onChange={(e) =>
-                          setFormData({ ...formData, instituteEmail: e.target.value })
-                        }
-                        placeholder="student@university.edu"
-                        disabled={!canSubmit}
-                        className="flex-1"
-                      />
-                      <Button
-                        onClick={handleSendVerificationCode}
-                        disabled={!formData.instituteEmail || !validateEmail(formData.instituteEmail) || sendingCode || !canSubmit}
+                    <Label>Enter 6-digit code</Label>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <InputOTP
+                        maxLength={6}
+                        value={otpCode}
+                        onChange={setOtpCode}
+                        disabled={verifyingCode}
                       >
-                        {sendingCode ? (
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                      <Button
+                        onClick={handleVerifyCode}
+                        disabled={otpCode.length !== 6 || verifyingCode}
+                        className="sm:w-auto"
+                      >
+                        {verifyingCode ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Sending...
+                            Verifying...
                           </>
                         ) : (
-                          <>
-                            <Mail className="mr-2 h-4 w-4" />
-                            Send Code
-                          </>
+                          "Verify"
                         )}
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Enter your educational email (.edu or .ac domain) and verify it with a code
-                    </p>
                   </div>
-                )}
-              </div>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or</span>
-                </div>
-              </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Code expires in: <span className="font-medium text-foreground">{getTimeRemaining()}</span>
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleResendCode}
+                      disabled={resendCooldown > 0 || sendingCode}
+                      className="gap-1"
+                    >
+                      <RefreshCw className={cn("h-3 w-3", sendingCode && "animate-spin")} />
+                      {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                    </Button>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="idCard">
-                  Student ID Card {emailVerificationStep !== 'verified' && !formData.instituteEmail && "*"}
-                </Label>
-                <div className="space-y-3">
-                  {idCardPreview ? (
-                    <div className="relative border-2 border-dashed border-border rounded-lg p-4">
-                      <img
-                        src={idCardPreview}
-                        alt="ID Card Preview"
-                        className="max-w-full h-auto max-h-64 mx-auto rounded-lg"
-                      />
-                      {canSubmit && (
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2"
-                          onClick={handleRemoveFile}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEmailVerificationStep('input');
+                      setOtpCode("");
+                      setCodeExpiresAt(null);
+                    }}
+                  >
+                    Change email
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="instituteEmail"
+                      type="email"
+                      value={formData.instituteEmail}
+                      onChange={(e) =>
+                        setFormData({ ...formData, instituteEmail: e.target.value })
+                      }
+                      placeholder="student@university.edu"
+                      disabled={!canSubmit}
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={handleSendVerificationCode}
+                      disabled={!formData.instituteEmail || !validateEmail(formData.instituteEmail) || sendingCode || !canSubmit}
+                    >
+                      {sendingCode ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="mr-2 h-4 w-4" />
+                          Send Code
+                        </>
                       )}
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
-                      <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Upload your student ID card
-                      </p>
-                      <Input
-                        id="idCard"
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        onChange={handleFileSelect}
-                        disabled={!canSubmit}
-                        className="hidden"
-                      />
-                      <Label
-                        htmlFor="idCard"
-                        className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer ${
-                          canSubmit
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                            : "bg-muted text-muted-foreground cursor-not-allowed"
-                        }`}
-                      >
-                        Choose File
-                      </Label>
-                    </div>
-                  )}
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    If you can't verify via email, upload a clear photo of your student ID card (JPG, PNG, or WEBP, max 5MB)
+                    Enter your educational email (.edu or .ac domain) and verify it with a code
                   </p>
                 </div>
-              </div>
+              )}
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="enrollmentId">Enrollment ID (Optional)</Label>
-                <Input
-                  id="enrollmentId"
-                  value={formData.enrollmentId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, enrollmentId: e.target.value })
-                  }
-                  placeholder="STU123456"
-                  disabled={!canSubmit}
-                />
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or</span>
               </div>
             </div>
 
-            {canSubmit && (
-              <Button
-                onClick={handleSubmit}
-                disabled={loading || uploading || (emailVerificationStep !== 'verified' && !idCardFile && !idCardPreview)}
-                className="w-full"
-              >
-                {uploading
-                  ? "Uploading..."
-                  : loading
+            <div className="space-y-2">
+              <Label htmlFor="idCard">
+                Student ID Card {emailVerificationStep !== 'verified' && !formData.instituteEmail && "*"}
+              </Label>
+              <div className="space-y-3">
+                {idCardPreview ? (
+                  <div className="relative border-2 border-dashed border-border rounded-lg p-4">
+                    <img
+                      src={idCardPreview}
+                      alt="ID Card Preview"
+                      className="max-w-full h-auto max-h-64 mx-auto rounded-lg"
+                    />
+                    {canSubmit && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveFile}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                    <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Upload your student ID card
+                    </p>
+                    <Input
+                      id="idCard"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleFileSelect}
+                      disabled={!canSubmit}
+                      className="hidden"
+                    />
+                    <Label
+                      htmlFor="idCard"
+                      className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer ${canSubmit
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          : "bg-muted text-muted-foreground cursor-not-allowed"
+                        }`}
+                    >
+                      Choose File
+                    </Label>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  If you can't verify via email, upload a clear photo of your student ID card (JPG, PNG, or WEBP, max 5MB)
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="enrollmentId">Enrollment ID (Optional)</Label>
+              <Input
+                id="enrollmentId"
+                value={formData.enrollmentId}
+                onChange={(e) =>
+                  setFormData({ ...formData, enrollmentId: e.target.value })
+                }
+                placeholder="STU123456"
+                disabled={!canSubmit}
+              />
+            </div>
+          </div>
+
+          {canSubmit && (
+            <Button
+              onClick={handleSubmit}
+              disabled={loading || uploading || (emailVerificationStep !== 'verified' && !idCardFile && !idCardPreview)}
+              className="w-full"
+            >
+              {uploading
+                ? "Uploading..."
+                : loading
                   ? "Submitting..."
                   : isEditingCollege
-                  ? "Update College Information"
-                  : "Submit Verification Request"}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+                    ? "Update College Information"
+                    : "Submit Verification Request"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 };

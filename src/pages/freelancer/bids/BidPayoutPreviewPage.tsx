@@ -11,18 +11,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PayoutBreakdownCard } from '@/components/financial/PayoutBreakdownCard';
-import { 
-  calculateFreelancerPayout, 
+import {
+  calculateFreelancerPayout,
   formatINR,
   calculateMilestoneBreakdown,
 } from '@/lib/financial';
 import { getPhasesForCategory } from '@/pages/shared/projects/ProjectTracking/phaseMapping';
 import type { PayoutBreakdown, MilestonePayment } from '@/types/financial';
-import { 
-  ArrowLeft, 
-  Shield, 
-  Lock, 
-  Verified, 
+import {
+  ArrowLeft,
+  Shield,
+  Lock,
+  Verified,
   Info,
   FileText,
   Calendar,
@@ -201,7 +201,7 @@ const BidPayoutPreviewPage = () => {
         .select('id')
         .eq('project_id', projectId)
         .eq('freelancer_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingBid) {
         toast({
@@ -224,7 +224,10 @@ const BidPayoutPreviewPage = () => {
           status: 'pending',
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase insert error:", error);
+        throw error;
+      }
 
       toast({
         title: 'Bid Submitted Successfully!',
@@ -339,12 +342,12 @@ const BidPayoutPreviewPage = () => {
                       <ChevronDown className="w-4 h-4 text-slate-400" />
                     )}
                   </button>
-                  
+
                   {showMilestones && (
                     <div className="p-4 pt-0 border-t border-slate-100">
                       <div className="space-y-3">
                         {milestones.map((milestone, index) => (
-                          <div 
+                          <div
                             key={index}
                             className="p-3 rounded-lg bg-slate-50 border border-slate-100"
                           >

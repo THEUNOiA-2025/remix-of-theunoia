@@ -14,10 +14,10 @@ serve(async (req) => {
     }
 
     try {
-        const { projectId } = await req.json();
+        const { projectId, amount, bidId } = await req.json();
 
-        if (!projectId) {
-            throw new Error("Project ID is required");
+        if (!projectId || !amount) {
+            throw new Error("Project ID and Amount are required");
         }
 
         // Initialize Supabase client
@@ -25,19 +25,15 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // Fetch project details
+        // Fetch project details to verify existence
         const { data: project, error: projectError } = await supabase
             .from("user_projects")
-            .select("*")
+            .select("id")
             .eq("id", projectId)
             .single();
 
         if (projectError || !project) {
             throw new Error("Project not found");
-        }
-
-        if (!project.budget || project.budget <= 0) {
-            throw new Error("Invalid project budget");
         }
 
         // Initialize Razorpay
@@ -46,15 +42,20 @@ serve(async (req) => {
             key_secret: Deno.env.get("RAZORPAY_KEY_SECRET") ?? "",
         });
 
-        const amountInPaise = Math.round(project.budget * 100); // Razorpay expects amount in paise
+        const amountInPaise = Math.round(parseFloat(Number(amount).toFixed(2)) * 100); // Razorpay strictly expects an integer in paise
         const currency = "INR";
+
+        // Receipt length must not exceed 40 characters
+        const rawReceipt = `rcpt_${bidId || projectId}_${Date.now()}`;
+        const sanitizedReceipt = rawReceipt.substring(0, 40);
 
         const options = {
             amount: amountInPaise,
             currency,
-            receipt: `receipt_${projectId}_${Date.now()}`,
+            receipt: sanitizedReceipt,
             notes: {
                 projectId: projectId,
+                bidId: bidId || '',
             },
         };
 
@@ -81,20 +82,24 @@ serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({
-                order_id: order.id,
-                amount: order.amount,
-                currency: order.currency,
-                key_id: Deno.env.get("RAZORPAY_KEY_ID"),
-            }),
+            JSON.stringify(order),
             {
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
                 status: 200,
             }
         );
-    } catch (error) {
+    } catch (error: any) {
+        console.error("Create Razorpay Order Error:", error);
+
+        let errorMsg = error.message || "An unknown error occurred during order creation";
+
+        // Sometimes Razorpay errors are deeply nested
+        if (error.error && error.error.description) {
+            errorMsg = error.error.description;
+        }
+
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: errorMsg }),
             {
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
                 status: 400,

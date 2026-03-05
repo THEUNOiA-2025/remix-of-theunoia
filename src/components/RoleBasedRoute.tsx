@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Freelancer pages
 const FreelancerDashboardPage = lazy(() => import("@/pages/freelancer/dashboard/DashboardPage"));
 const FreelancerProfilePage = lazy(() => import("@/pages/freelancer/profile/ProfilePage"));
+const FreelancerEditProfilePage = lazy(() => import("@/pages/freelancer/profile/EditProfilePage"));
 const FreelancerProjectsPage = lazy(() => import("@/pages/freelancer/projects/ProjectsPage"));
 const FreelancerCommunityPage = lazy(() => import("@/pages/freelancer/community/CommunityPage"));
 const FreelancerLeadershipPage = lazy(() => import("../pages/freelancer/leadership/LeadershipPage"));
@@ -13,9 +14,10 @@ const FreelancerLeadershipPage = lazy(() => import("../pages/freelancer/leadersh
 // Client pages
 const ClientDashboardPage = lazy(() => import("@/pages/client/dashboard/DashboardPage"));
 const ClientProfilePage = lazy(() => import("@/pages/client/profile/ProfilePage"));
+const ClientEditProfilePage = lazy(() => import("@/pages/client/profile/EditProfilePage"));
 const ClientProjectsPage = lazy(() => import("@/pages/client/projects/ProjectsPage"));
 
-type PageType = 'dashboard' | 'profile' | 'projects' | 'community' | 'leadership';
+type PageType = 'dashboard' | 'profile' | 'profile_edit' | 'projects' | 'community' | 'leadership';
 
 interface RoleBasedRouteProps {
   pageType: PageType;
@@ -28,16 +30,13 @@ export const RoleBasedRoute = ({ pageType }: RoleBasedRouteProps) => {
     queryKey: ["user-profile-type", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      
+
       const { data, error } = await supabase
         .from("user_profiles")
         .select("user_type, user_id, first_name, last_name")
         .eq("user_id", user.id)
         .single();
 
-      console.log("User ID:", user?.id);
-      console.log("Data:", data);
-      console.log("Error:", error);
 
       if (error) throw error;
       return data ?? null;
@@ -84,6 +83,8 @@ export const RoleBasedRoute = ({ pageType }: RoleBasedRouteProps) => {
         return isClient ? <ClientDashboardPage /> : <FreelancerDashboardPage />;
       case 'profile':
         return isClient ? <ClientProfilePage /> : <FreelancerProfilePage />;
+      case 'profile_edit':
+        return isClient ? <ClientEditProfilePage /> : <FreelancerEditProfilePage />;
       case 'projects':
         return isClient ? <ClientProjectsPage /> : <FreelancerProjectsPage />;
       case 'community':

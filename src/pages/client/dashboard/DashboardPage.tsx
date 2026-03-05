@@ -437,7 +437,7 @@ const DashboardPage = () => {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-5">
               <p className="text-sm text-gray-500 mb-2">No active projects found.</p>
-              <Link to="/post-project">
+              <Link to="/projects/post-project">
                 <Button size="sm">Post a Project</Button>
               </Link>
             </div>
@@ -713,8 +713,8 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Row 2: Invoices (Hidden) + Support */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+      {/* Row 2: Invoices (Hidden) + Contracts & Support */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
         {/* Invoices */}
         <div className="bg-white dark:bg-white/5 p-3 rounded-lg shadow-sm border border-black/5">
           <h3 className="text-[#121118] dark:text-white text-base font-bold mb-2">
@@ -769,6 +769,35 @@ const DashboardPage = () => {
               <p className="text-xs text-gray-500">No invoices yet.</p>
             </div>
           )}
+        </div>
+
+        {/* Contracts & Support Row */}
+        <div className="bg-white dark:bg-white/5 p-3 rounded-lg shadow-sm border border-black/5">
+          <h3 className="text-[#121118] dark:text-white text-base font-bold mb-3">
+            Contracts
+          </h3>
+          <div className="rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 p-4 flex flex-col items-center text-center shadow-sm">
+            <div className="size-12 rounded-full bg-primary flex items-center justify-center mb-3 shadow-md">
+              <FileText className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <h4 className="text-[#121118] dark:text-white text-sm font-bold mb-1">
+              Client Agreement
+            </h4>
+            <p className="text-[#68608a] dark:text-gray-400 text-xs mb-3 max-w-[240px]">
+              {profile?.client_contract_signed
+                ? "You have already signed the client agreement."
+                : "Please sign the client agreement to proceed."}
+            </p>
+            <Link
+              to="/client/contracts"
+              className={`inline-flex items-center justify-center h-8 px-4 rounded-lg text-xs font-bold transition-colors shadow-md ${profile?.client_contract_signed
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20"
+                }`}
+            >
+              {profile?.client_contract_signed ? "View Contract" : "Sign Contract"}
+            </Link>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-white/5 p-3 rounded-lg shadow-sm border border-black/5">

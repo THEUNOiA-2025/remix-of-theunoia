@@ -557,8 +557,8 @@ export const ProjectTrackingBoard = ({ projectId, projectCategory }: ProjectTrac
       {/* Project Overview */}
       <div className="space-y-3">
         <h3 className="text-xs font-bold text-slate-900">Project overview</h3>
-        <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <div className="flex gap-3 min-w-max [&::-webkit-scrollbar]:hidden">
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-3 min-w-max">
             {phaseProgress.map((phase, index) => {
               const color = phaseColors[index % phaseColors.length];
               const paymentStatus = getPhasePaymentStatus(index, phases.length, activePhaseIndex);
@@ -638,8 +638,8 @@ export const ProjectTrackingBoard = ({ projectId, projectCategory }: ProjectTrac
       {/* Kanban Board - Full Width */}
       <div>
         <h3 className="text-xs font-bold text-slate-900 mb-3">Kanban Board</h3>
-        <div className="w-full overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <div className="flex gap-3.5 min-w-max [&::-webkit-scrollbar]:hidden">
+        <div className="w-full overflow-x-auto pb-4">
+          <div className="flex gap-3.5 min-w-max">
             {phases.map((phase, index) => {
               const phaseTasks = getTasksForPhase(phase);
               const isFormOpen = showFormForPhase === phase;
