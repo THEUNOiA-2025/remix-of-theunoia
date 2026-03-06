@@ -74,7 +74,6 @@ serve(async (req) => {
                 currency: currency,
                 status: "pending",
                 razorpay_order_id: order.id,
-                bid_id: bidId || null,
             });
 
         if (paymentError) {
