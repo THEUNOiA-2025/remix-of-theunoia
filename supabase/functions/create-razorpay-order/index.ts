@@ -45,10 +45,14 @@ serve(async (req) => {
         const amountInPaise = Math.round(parseFloat(Number(amount).toFixed(2)) * 100); // Razorpay strictly expects an integer in paise
         const currency = "INR";
 
+        // Receipt length must not exceed 40 characters
+        const rawReceipt = `rcpt_${bidId || projectId}_${Date.now()}`;
+        const sanitizedReceipt = rawReceipt.substring(0, 40);
+
         const options = {
             amount: amountInPaise,
             currency,
-            receipt: `receipt_${bidId || projectId}_${Date.now()}`,
+            receipt: sanitizedReceipt,
             notes: {
                 projectId: projectId,
                 bidId: bidId || '',
