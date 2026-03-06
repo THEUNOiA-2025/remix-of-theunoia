@@ -70,10 +70,11 @@ serve(async (req) => {
             .from("payments")
             .insert({
                 project_id: projectId,
-                amount: project.budget,
+                amount: amount, // Use the amount passed in the request
                 currency: currency,
                 status: "pending",
                 razorpay_order_id: order.id,
+                bid_id: bidId || null,
             });
 
         if (paymentError) {
