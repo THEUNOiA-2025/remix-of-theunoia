@@ -5,68 +5,82 @@ export interface PhaseConfig {
 }
 
 export const PHASE_MAPPING: Record<string, PhaseConfig> = {
-  // Writing & Content - 3 phases
-  "Writing & Content": {
+  "Writing & Content Creation": {
     phases: ["Drafting", "Refinement", "Finalization"]
   },
-  // Design & Creative - 3 phases
-  "Design & Creative": {
+  "Graphic Design & Visual Arts": {
     phases: ["Drafting", "Refinement", "Finalization"]
   },
-  // Web, Tech & Development - 6 phases
-  "Web, Tech & Development": {
+  "Web Development & Programming": {
     phases: ["Discovery", "Design", "Development", "Testing", "Finalization", "Support"]
   },
-  // Social Media & Digital Marketing - 5 phases
-  "Social Media & Digital Marketing": {
+  "Digital Marketing": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
   },
-  // Video, Audio & Multimedia - 5 phases
+  "Business, Finance & Management": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "Data & Analytics": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
   "Video, Audio & Multimedia": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
   },
-  // Virtual Assistance & Admin - 4 phases
-  "Virtual Assistance & Admin": {
+  "AI, Automation & Tech Tools": {
+    phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
+  },
+  "IT & Technical Support": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "Translation & Linguistic Services": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization"]
   },
-  // Education & Tutoring - 5 phases
-  "Education & Tutoring": {
+  "Education & Training": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
   },
-  // AI & Automation - 6 phases
-  "AI & Automation": {
-    phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
-  },
-  // Music, Audio & Performing Arts - 5 phases
-  "Music, Audio & Performing Arts": {
+  "E-commerce & Product Work": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
   },
-  // Art & Illustration - 3 phases
-  "Art & Illustration": {
-    phases: ["Drafting", "Refinement", "Finalization"]
-  },
-  // E-commerce & Online Business - 5 phases
-  "E-commerce & Online Business": {
-    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
-  },
-  // Student-Friendly Services - 4 phases
-  "Student-Friendly Services": {
+  "Lifestyle, Creative & Miscellaneous": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization"]
   },
-  // Beginner Tech & STEM Freelancing - 6 phases
-  "Beginner Tech & STEM Freelancing": {
-    phases: ["Discovery", "Design", "Development", "Testing", "Finalization", "Support"]
+  "Administrative & Support": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization"]
   },
-  // Medical Writing & Editing - 6 phases
-  "Medical Writing & Editing": {
+  "Medical Writing & Documentation": {
     phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
   },
-  // Medical Research & Analytics - 6 phases
-  "Medical Research & Analytics": {
+  "Telehealth & Virtual Care": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "Biomedical & Scientific Research": {
     phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
   },
-  // Clinical Services - 5 phases
-  "Clinical Services": {
+  "Pharmaceutical & Regulatory Services": {
+    phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
+  },
+  "Health Informatics & Digital Health": {
+    phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
+  },
+  "Public Health & Epidemiology": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "Health Coaching & Patient Support": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization"]
+  },
+  "Medical Administrative & Support Roles": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization"]
+  },
+  "Medical Illustration & Visualization": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "Medical Marketing & Consulting": {
+    phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
+  },
+  "AI & Tech in Healthcare": {
+    phases: ["Discovery", "Drafting", "Refinement", "Testing", "Finalization", "Support"]
+  },
+  "Medical Education & Training": {
     phases: ["Discovery", "Drafting", "Refinement", "Finalization", "Support"]
   }
 };
