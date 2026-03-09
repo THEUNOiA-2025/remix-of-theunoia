@@ -2,4 +2,12 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+// ✅ Import HelmetProvider
+import { HelmetProvider } from "react-helmet-async";
+
+// ✅ Wrap App inside HelmetProvider
+createRoot(document.getElementById("root")!).render(
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
+);

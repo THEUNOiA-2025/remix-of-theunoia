@@ -53,9 +53,23 @@ const Navbar = () => {
     return () => document.body.classList.remove('aside-open');
   }, [isAsideOpen]);
 
+  // Close menu on route change
+  useEffect(() => {
+    setIsNavOpen(false);
+    setIsAsideOpen(false);
+    setIsCreationsOpen(false);
+  }, [location.pathname]);
+
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
     setIsAsideOpen(false); // Close aside when toggling nav
+  };
+
+  // Close mobile menu when a nav link is tapped
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setIsNavOpen(false);
+    }
   };
 
   const handleCreationsClick = (e: React.MouseEvent) => {
@@ -73,6 +87,16 @@ const Navbar = () => {
 
   return (
     <>
+      {/* Mobile overlay backdrop — top-level sibling so it is NOT inside the
+          header's stacking context (header z-index: 1000). This lets the
+          nav-links panel (z-index: 997) render above the overlay (z-index: 996)
+          correctly, while both remain below the navbar (z-index: 1000). */}
+      <div
+        className="nav-overlay"
+        aria-hidden="true"
+        onClick={() => setIsNavOpen(false)}
+      />
+
       <header className="landing-navbar">
         <div className="landing-logo">
           <Link to="/">
@@ -91,15 +115,16 @@ const Navbar = () => {
             Our Creations
             <span className="dropdown-icon">▾</span>
           </a>
-          <a href="features">Features</a>
-          <Link to="/blog" className={isActive('/blog') ? 'act' : ''}>Blog</Link>
-          <Link to="/faq" className={isActive('/faq') ? 'act' : ''}>FAQ</Link>
-          <Link to="/contact" className={isActive('/contact') ? 'act' : ''}>Contact</Link>
+          <a href="features" onClick={handleLinkClick}>Features</a>
+          <Link to="/blog" className={isActive('/blog') ? 'act' : ''} onClick={handleLinkClick}>Blog</Link>
+          <Link to="/faq" className={isActive('/faq') ? 'act' : ''} onClick={handleLinkClick}>FAQ</Link>
+          <Link to="/contact" className={isActive('/contact') ? 'act' : ''} onClick={handleLinkClick}>Contact</Link>
         </nav>
 
         <button
-          className="landing-nav-toggle"
-          aria-label="Toggle menu"
+          className={`landing-nav-toggle${isNavOpen ? ' is-open' : ''}`}
+          aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isNavOpen}
           onClick={toggleNav}
         >
           <span></span>
