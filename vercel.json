@@ -7,10 +7,10 @@
       ]
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/((?!assets|Video|images|favicon.ico).*)",
+      "destination": "/index.html"
     }
   ]
 }
