@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const words = ['CREATIVITY.', 'STRATEGY.', 'CONTENT.', 'CREATIVITY.'];
+const words = ['EXPERT.', 'ACCOUNTABLE.', 'QUALIFIED.', 'CREATIVITY.'];
 
 const Hero = () => {
   const rotatorRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,7 @@ const Hero = () => {
               <div className="landing-hero-rotator" ref={rotatorRef}>
                 {words.map((word, index) => (
                   <div className="landing-hero-face" key={index}>
-                    <h1 className="landing-hero-word">{word}</h1>
+                    <h2 className="landing-hero-word">{word}</h2>
                   </div>
                 ))}
               </div>
@@ -79,13 +79,21 @@ const Hero = () => {
 
             <div className="hero-content-wrapper">
               <div className="landing-hero-text">
-                We lead with content. We scale with digital.
+                You dream it. We deliver it.
               </div>
             </div>
           </div>
 
           <div className="demo-frame">
-            {/* Demo frame content can be added here */}
+            <video
+              className="demo-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src="/Video/herovid.mp4" type="video/mp4" />
+            </video>
           </div>
         </div>
       </section>
