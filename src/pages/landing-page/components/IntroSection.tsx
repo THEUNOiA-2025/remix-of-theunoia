@@ -124,11 +124,11 @@ const IntroSection = () => {
             <div className="intro-left">
               <div className={`intro-header ${headerVisible ? "visible" : ""}`}>
                 <div className="intro-label">Why Skill Bridge</div>
-                <h1 className="intro-main-title">
+                <h2 className="intro-main-title">
                   PAY ONLY FOR TALENT
                   <br />
                   NOT INFLATED FEES.
-                </h1>
+                </h2>
               </div>
 
               <div

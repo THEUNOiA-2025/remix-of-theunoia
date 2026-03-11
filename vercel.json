@@ -6,11 +6,5 @@
         { "key": "Content-Type", "value": "video/mp4" }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!assets|Video|images|favicon.ico).*)",
-      "destination": "/index.html"
-    }
   ]
 }

@@ -201,7 +201,7 @@ const FeaturesPage = () => {
   return (
     <div className="landing-page">
       <Helmet>
-        <title>Online Work for Students Platform Features Test | TheUnoia</title>
+        <title>Online Work for Students Platform Features | TheUnoia</title>
         <meta name="description" content="Explore TheUnoia platform features designed for online jobs for students, part-time online work, and easy ways to earn money for students online." />
         <link rel="canonical" href="https://www.theunoia.com/features" />
       </Helmet>
