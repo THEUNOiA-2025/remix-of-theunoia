@@ -92,7 +92,7 @@ const Hero = () => {
               loop
               playsInline
             >
-              <source src="/Video/herovid.mp4" type="video/mp4" />
+              <source src="/Video/Herovideo.mp4" type="video/mp4" />
             </video>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 
@@ -115,9 +116,9 @@ const ContactPage = () => {
     const timer = setTimeout(() => {
       if (topMaskRef.current && bottomMaskRef.current) {
         topMaskRef.current.style.transition =
-          'transform 1000ms cubic-bezier(0.16, 1, 0.3, 1)';
+          'transform 8000ms cubic-bezier(0.16, 1, 0.3, 1)';
         bottomMaskRef.current.style.transition =
-          'transform 1000ms cubic-bezier(0.16, 1, 0.3, 1)';
+          'transform 8000ms cubic-bezier(0.16, 1, 0.3, 1)';
         topMaskRef.current.style.transform = 'translateY(-110%)';
         bottomMaskRef.current.style.transform = 'translateY(110%)';
       }
@@ -205,6 +206,11 @@ const ContactPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>TheUnoia | Contact – Hire Top Freelance Talent</title>
+        <meta name="description" content="Get in touch with TheUnoia team for support, collaboration, or inquiries about online jobs, hiring freelance talent, and platform services." />
+        <link rel="canonical" href="https://www.theunoia.com/contact" />
+      </Helmet>
       {/* NAVBAR */}
       <header className="landing-navbar">
         <div className="landing-logo">

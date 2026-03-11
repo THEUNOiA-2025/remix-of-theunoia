@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import IntroSection from './components/IntroSection';
@@ -19,6 +20,11 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>Hire Top Freelancers Online | Part Time Online Work – TheUnoia</title>
+        <meta name="description" content="Find the best online jobs for students. Start part-time online work, a job at home for students, and earn money online while studying with TheUnoia." />
+        <link rel="canonical" href="https://www.theunoia.com/" />
+      </Helmet>
       <Navbar />
       <Hero />
       <IntroSection />

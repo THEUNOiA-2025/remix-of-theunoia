@@ -457,3 +457,257 @@ All colors MUST be HSL.
     font-family: 'Material Symbols Outlined';
   }
 }
+/* ================= HERO INTRO ================= */
+
+
+/* CONFETTI CANVAS */
+
+#canvas{
+
+position:absolute;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:2;
+
+}
+
+
+
+/* HERO FULLSCREEN */
+
+.hero{
+
+position: relative;
+
+width:100%;
+min-height:100vh;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+text-align:center;
+
+background:white;
+
+overflow:hidden;
+
+}
+
+
+#canvas{
+
+position:absolute;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:0;
+
+}
+
+
+.logo-img{
+
+width:220px;
+
+}
+
+
+#headline{
+
+max-width:820px;
+
+font-size: clamp(42px,5vw,72px);
+
+font-weight:700;
+
+line-height:1.12;
+
+letter-spacing:-0.03em;
+
+margin:0 auto;
+
+}
+
+
+.btns{
+
+margin-top:48px;
+
+opacity:0;
+
+transform:translateY(20px);
+
+transition:.8s;
+
+}
+
+.btns.visible{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+.logo.shake{
+
+animation: logoShake 3s ease-in-out infinite;
+
+}
+
+
+@keyframes logoShake{
+
+0%{transform:rotate(0)}
+10%{transform:rotate(-15deg)}
+20%{transform:rotate(15deg)}
+30%{transform:rotate(-12deg)}
+40%{transform:rotate(12deg)}
+50%{transform:rotate(-8deg)}
+60%{transform:rotate(8deg)}
+70%{transform:rotate(-4deg)}
+80%{transform:rotate(4deg)}
+90%{transform:rotate(-2deg)}
+100%{transform:rotate(0)}
+
+}
+/* ================================= */
+/* SCROLL INTRO FINAL */
+/* ================================= */
+
+.scroll-intro {
+
+position: relative;
+
+min-height: 100vh;
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+justify-content: center;
+
+text-align: center;
+
+padding-left: 20px;
+padding-right: 20px;
+
+overflow: hidden;
+
+}
+
+
+
+
+#canvas{
+
+position:absolute;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:1;
+
+}
+
+
+
+.logo {
+
+margin-bottom: 40px;
+
+display: flex;
+
+justify-content: center;
+
+align-items: center;
+
+}
+
+
+
+
+.logo.visible{
+
+opacity:1;
+
+}
+#headline {
+
+font-size: clamp(42px, 5.2vw, 72px);
+
+font-weight: 700;
+
+line-height: 1.12;
+
+letter-spacing: -0.03em;
+
+text-align: center;
+width: 100%;
+max-width: 2000px;
+
+margin-left: auto;
+margin-right: auto;
+
+display: block;
+
+word-break: keep-all;
+
+}
+
+.typing-cursor{
+
+display:inline-block;
+
+width:3px;
+height:1em;
+
+margin-left:4px;
+
+vertical-align:bottom;
+
+background:linear-gradient(
+180deg,
+#4285F4,
+#EA4335,
+#FBBC05,
+#34A853
+);
+
+}
+
+.typing-cursor.blink{
+
+animation: blink 1s infinite;
+
+}
+
+@keyframes blink{
+
+0%,100%{opacity:1}
+50%{opacity:0}
+
+}
+
