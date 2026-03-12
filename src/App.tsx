@@ -16,7 +16,7 @@ import { RoleBasedRoute } from "./components/RoleBasedRoute";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
-import FeaturesPage from "./pages/FeaturesPage";
+import FeaturesPage from "./pages/landing-page/FeaturesPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import FAQPage from "./pages/FAQPage";
 import ContactPage from "./pages/ContactPage";

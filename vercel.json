@@ -6,5 +6,9 @@
         { "key": "Content-Type", "value": "video/mp4" }
       ]
     }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
