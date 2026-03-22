@@ -1,0 +1,14 @@
+{
+  "headers": [
+    {
+      "source": "/Video/(.*).mp4",
+      "headers": [
+        { "key": "Content-Type", "value": "video/mp4" }
+      ]
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
+}

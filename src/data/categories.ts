@@ -1,0 +1,322 @@
+export const PROJECT_CATEGORIES: Record<string, string[]> = {
+  "Writing & Content Creation": [
+    "Content Writing",
+    "Copywriting",
+    "Editing & Proofreading",
+    "SEO Optimization",
+    "Technical Writing",
+    "Blog Writing",
+    "Social Media Content",
+    "Ghostwriting",
+    "Scriptwriting",
+    "Creative Writing"
+  ],
+  "Graphic Design & Visual Arts": [
+    "Logo Design",
+    "Branding & Identity",
+    "Illustration",
+    "UI/UX Design",
+    "Print Design",
+    "Infographics",
+    "Typography",
+    "Motion Graphics",
+    "Packaging Design",
+    "Visual Arts"
+  ],
+  "Web Development & Programming": [
+    "Frontend Development",
+    "Backend Development",
+    "Full-stack Development",
+    "WordPress Development",
+    "E-commerce Development",
+    "Mobile App Development",
+    "API Integration",
+    "Database Management",
+    "Web Security",
+    "QA & Testing"
+  ],
+  "Digital Marketing": [
+    "Social Media Marketing",
+    "Search Engine Marketing (SEM)",
+    "Email Marketing",
+    "Content Marketing",
+    "Influencer Marketing",
+    "PPC Advertising",
+    "Market Research",
+    "Conversion Rate Optimization",
+    "Affiliate Marketing",
+    "Analytics & Reporting"
+  ],
+  "Business, Finance & Management": [
+    "Project Management",
+    "Business Development",
+    "Financial Planning",
+    "Accounting & Bookkeeping",
+    "Operations Management",
+    "Business Strategy",
+    "Risk Management",
+    "Human Resources",
+    "Legal Consulting",
+    "Market Analysis"
+  ],
+  "Data & Analytics": [
+    "Data Analysis",
+    "Data Visualization",
+    "Statistical Analysis",
+    "Database Querying (SQL)",
+    "Predictive Modeling",
+    "Big Data Analysis",
+    "Business Intelligence",
+    "Data Migration",
+    "Data Cleaning",
+    "Excel Automation"
+  ],
+  "Video, Audio & Multimedia": [
+    "Video Editing",
+    "Audio Engineering",
+    "Sound Design",
+    "Motion Graphics",
+    "Animation",
+    "Voice-over",
+    "Podcast Production",
+    "Video Production",
+    "Multimedia Design",
+    "Color Grading"
+  ],
+  "AI, Automation & Tech Tools": [
+    "Generative AI Implementation",
+    "Machine Learning",
+    "Workflow Automation (Zapier/Make)",
+    "Prompt Engineering",
+    "Chatbot Development",
+    "Process Automation",
+    "Data Science",
+    "AI Consulting",
+    "Natural Language Processing",
+    "Computer Vision"
+  ],
+  "IT & Technical Support": [
+    "Technical Support",
+    "Network Setup & Support",
+    "Systems Administration",
+    "Cybersecurity",
+    "Cloud Services (AWS/Azure)",
+    "Hardware Troubleshooting",
+    "Software Installation",
+    "IT Consulting",
+    "Database Administration",
+    "Remote IT Support"
+  ],
+  "Translation & Linguistic Services": [
+    "Translation",
+    "Localization",
+    "Interpretation",
+    "Transcription",
+    "Language Tutoring",
+    "Subtitling",
+    "Creative Translation",
+    "Proofreading",
+    "Linguistic Analysis",
+    "Cultural Consulting"
+  ],
+  "Education & Training": [
+    "Curriculum Development",
+    "Online Tutoring",
+    "Instructional Design",
+    "Corporate Training",
+    "E-learning Development",
+    "Educational Content Creation",
+    "Coaching & Mentoring",
+    "Language Education",
+    "Soft Skills Training",
+    "Technical Instruction"
+  ],
+  "E-commerce & Product Work": [
+    "Shopify Store Management",
+    "Amazon FBA Management",
+    "Product Sourcing",
+    "Inventory Management",
+    "Product Description Writing",
+    "E-commerce Strategy",
+    "Customer Support",
+    "Marketplace Optimization",
+    "Listing Design",
+    "Order Fulfillment"
+  ],
+  "Lifestyle, Creative & Miscellaneous": [
+    "Personal Coaching",
+    "Event Planning",
+    "Photography",
+    "Interior Design",
+    "Creative Direction",
+    "Travel Planning",
+    "Voice Acting",
+    "Handicraft & DIY",
+    "Fitness Coaching",
+    "Consultancy"
+  ],
+  "Administrative & Support": [
+    "Virtual Assistance",
+    "Data Entry",
+    "Calendar Management",
+    "Email Management",
+    "Transcription",
+    "Document Formatting",
+    "Customer Service",
+    "Research",
+    "File Organization",
+    "Order Processing"
+  ],
+  "Medical Writing & Documentation": [
+    "Medical Content Writing",
+    "Patient Education Materials",
+    "Medical Editing & Proofreading",
+    "Clinical Summaries",
+    "Regulatory Writing",
+    "Pharmacovigilance Reporting",
+    "Journal Submission Formatting",
+    "Medical Transcription",
+    "Healthcare Case Studies",
+    "Continuing Medical Education (CME)"
+  ],
+  "Telehealth & Virtual Care": [
+    "Virtual Triage",
+    "Remote Patient Monitoring",
+    "Telemedicine Platform Support",
+    "Digital Health Navigation",
+    "Telehealth Implementation",
+    "Virtual Patient Support",
+    "Healthcare Coordination",
+    "Remote Medical Scribing",
+    "Wellness Program Management",
+    "Digital Health Education"
+  ],
+  "Biomedical & Scientific Research": [
+    "Literature Review",
+    "Research Data Entry",
+    "Grant Proposal Writing",
+    "Statistical Analysis (Bio-stats)",
+    "Scientific Manuscript Preparation",
+    "Laboratory Management",
+    "Bioinformatics",
+    "Protocol Design",
+    "Clinical Trial Support",
+    "Scientific Communication"
+  ],
+  "Pharmaceutical & Regulatory Services": [
+    "Regulatory Affairs Consulting",
+    "Quality Assurance & Control",
+    "Drug Safety Monitoring",
+    "Clinical Trial Management",
+    "Compliance Auditing",
+    "Labeling & Promotional Review",
+    "Medical Device Support",
+    "Pharmacology Consulting",
+    "Submission Management",
+    "Health Economics"
+  ],
+  "Health Informatics & Digital Health": [
+    "EHR System Optimization",
+    "Healthcare Data Analytics",
+    "Interoperability Consulting",
+    "Health IT Project Management",
+    "Medical Coding & Auditing",
+    "Information Security (HIPAA)",
+    "Digital Health Product Design",
+    "Clinical Decision Support",
+    "Healthcare Interface Design",
+    "Standards Consulting (HL7/FHIR)"
+  ],
+  "Public Health & Epidemiology": [
+    "Epidemiological Analysis",
+    "Public Health Program Evaluation",
+    "Community Health Communication",
+    "Health Policy Research",
+    "Biostatistical Consulting",
+    "GIS Disease Mapping",
+    "Outbreak Investigation",
+    "Environmental Health Analysis",
+    "Health Education Planning",
+    "Social Determinants of Health"
+  ],
+  "Health Coaching & Patient Support": [
+    "Chronic Disease Management",
+    "Wellness Coaching",
+    "Nutritional Consultation",
+    "Patient Advocacy",
+    "Mental Health Support",
+    "Lifestyle Modification",
+    "Patient Education",
+    "Peer Support Coordination",
+    "Health Goal Setting",
+    "Motivational Interviewing"
+  ],
+  "Medical Administrative & Support Roles": [
+    "Medical Billing & Coding",
+    "Patient Scheduling",
+    "Medical Transcription",
+    "Insurance Verification",
+    "Healthcare Admin Support",
+    "Reception & Triage",
+    "Medical Records Management",
+    "Practice Workflow Optimization",
+    "Healthcare Customer Service",
+    "Tele-Scribing"
+  ],
+  "Medical Illustration & Visualization": [
+    "Anatomical Illustration",
+    "Surgical Illustration",
+    "Molecular Visualization",
+    "3D Medical Animation",
+    "Educational Medical Visuals",
+    "Patient Visualization Tools",
+    "Pharmaceutical Illustration",
+    "Digital Pathological Imaging",
+    "Biomedical Graphics",
+    "Infographics for Healthcare"
+  ],
+  "Medical Marketing & Consulting": [
+    "Healthcare Branding",
+    "Medical Digital Marketing",
+    "Practice Growth Consulting",
+    "Healthcare Market Research",
+    "Patient Engagement Strategies",
+    "Reputation Management",
+    "Medical PR",
+    "Crisis Communication",
+    "Strategy Development",
+    "Physician Referral Marketing"
+  ],
+  "AI & Tech in Healthcare": [
+    "Medical AI Implementation",
+    "Clinical Machine Learning",
+    "NLP for Health Records",
+    "Diagnostics Automation",
+    "Healthcare IoT Integration",
+    "AI Consulting (Healthcare)",
+    "Vision AI for Diagnostics",
+    "Automation for Medical Admin",
+    "Ethical AI Review",
+    "SaaS for Healthcare"
+  ],
+  "Medical Education & Training": [
+    "CME Development",
+    "Medical Simulation Design",
+    "Healthcare Staff Training",
+    "Patient Education Course Design",
+    "Anatomy Education",
+    "E-learning for Healthcare",
+    "Curriculum Design",
+    "Skills Lab Instruction",
+    "Instructional Design",
+    "Assessment & Certification"
+  ]
+};
+
+export const getCategoryList = (): string[] => {
+  return Object.keys(PROJECT_CATEGORIES);
+};
+
+export const getSubcategoriesForCategory = (category: string): string[] => {
+  return PROJECT_CATEGORIES[category] || [];
+};

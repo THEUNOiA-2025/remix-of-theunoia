@@ -1,0 +1,25 @@
+project_id = "oeleyonqaowubcfreqoy"
+
+[functions.bulk-import-colleges]
+verify_jwt = true
+
+[functions.send-email-verification]
+verify_jwt = true
+
+[functions.verify-email-code]
+verify_jwt = true
+
+[functions.sitemap]
+verify_jwt = false
+
+[functions.create-razorpay-order]
+verify_jwt = true
+
+[functions.verify-razorpay-payment]
+verify_jwt = true
+
+[functions.create-razorpay-fund-account]
+verify_jwt = true
+
+[functions.process-freelancer-payout]
+verify_jwt = true

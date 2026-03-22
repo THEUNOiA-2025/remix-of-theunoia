@@ -1,0 +1,735 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 251 91% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 251 100% 95%;
+
+    --secondary: 45 93% 75%;
+    --secondary-foreground: 35 80% 25%;
+
+    --muted: 220 13% 91%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 82 70% 75%;
+    --accent-foreground: 120 60% 20%;
+    
+    --accent-blue: 192 80% 70%;
+    --accent-blue-foreground: 195 100% 20%;
+    
+    --accent-purple: 274 70% 72%;
+    --accent-purple-foreground: 274 80% 30%;
+
+    --yellow: 45 93% 75%;
+    --yellow-foreground: 35 80% 25%;
+
+    --green: 82 70% 75%;
+    --green-foreground: 120 60% 20%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 251 91% 68%;
+
+    --radius: 1.25rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 251 91% 68%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 251 100% 96%;
+    --sidebar-accent-foreground: 251 91% 68%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 251 91% 68%;
+    
+    --text-primary: 0 0% 10%;
+    --text-secondary: 220 9% 46%;
+    --text-tertiary: 220 9% 60%;
+    
+    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Preserve list markers for rendered rich blog content. */
+  .blog-rich-content ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+  }
+
+  .blog-rich-content ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+  }
+
+  .blog-rich-content li {
+    display: list-item !important;
+    margin: 0.25rem 0 !important;
+  }
+
+  .blog-rich-content li > p {
+    margin: 0 !important;
+  }
+}
+
+@layer utilities {
+  @keyframes subtle-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-subtle-fade {
+    animation: subtle-fade 0.8s ease-out forwards;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 0.6s;
+  }
+
+  .animation-delay-800 {
+    animation-delay: 0.8s;
+  }
+
+  /* Earnings & Profit cards: scattered drift – each card moves in a different path, small range so they don't touch */
+  @keyframes earnings-drift-1 {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-5px, -6px); }
+    50% { transform: translate(4px, 3px); }
+    75% { transform: translate(-3px, 5px); }
+  }
+
+  @keyframes earnings-drift-2 {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(5px, 4px); }
+    50% { transform: translate(-4px, -5px); }
+    75% { transform: translate(3px, -4px); }
+  }
+
+  @keyframes earnings-drift-3 {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(4px, -5px); }
+    50% { transform: translate(-5px, 4px); }
+    75% { transform: translate(-4px, -3px); }
+  }
+
+  .animate-earnings-drift-1 {
+    animation: earnings-drift-1 3s ease-in-out infinite;
+  }
+
+  .animate-earnings-drift-2 {
+    animation: earnings-drift-2 3s ease-in-out infinite;
+    animation-delay: 0.5s;
+  }
+
+  .animate-earnings-drift-3 {
+    animation: earnings-drift-3 3s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Leadership / reference design – hero banner, container shadow, borders, stars */
+  .hero-banner-mask {
+    background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.85) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      ),
+      url("https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1600&q=80");
+    background-size: cover;
+    background-position: center 20%;
+  }
+
+  .leadership-banner-mask {
+    background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.85) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      ),
+      url("/images/leadership%20banner.png");
+    background-size: cover;
+    background-position: center 20%;
+  }
+
+  .deep-soft-shadow {
+    box-shadow: 0 25px 50px -12px rgba(126, 99, 248, 0.08);
+  }
+
+  .card-shadow {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .purple-border {
+    border-color: rgba(126, 99, 248, 0.1);
+  }
+
+  .slanted-card {
+    position: relative;
+    clip-path: polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%);
+    background: white;
+  }
+
+  @media (max-width: 768px) {
+    .slanted-card {
+      clip-path: none;
+    }
+  }
+
+  .star-filled {
+    color: #fbdd84;
+    font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+
+  .star-empty {
+    color: rgba(126, 99, 248, 0.2);
+  }
+
+  @keyframes bounce-welcome {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-10px);
+    }
+    50% {
+      transform: translateY(0);
+    }
+    75% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .animate-bounce-welcome {
+    animation: bounce-welcome 1s ease-in-out infinite;
+  }
+
+  @keyframes slide-out-left {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-out-left {
+    animation: slide-out-left 0.5s ease-in-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-in-out forwards;
+  }
+
+  @keyframes scroll-up {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-scroll-up {
+    animation: scroll-up 20s linear infinite;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(126, 99, 248, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 4px rgba(126, 99, 248, 0);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-30px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(30px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.3) translateY(20px);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05) translateY(-5px);
+    }
+    70% {
+      transform: scale(0.95) translateY(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-3deg);
+    }
+    75% {
+      transform: rotate(3deg);
+    }
+  }
+
+  .animate-slide-in-left {
+    opacity: 0;
+    animation: slide-in-left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-slide-in-right {
+    opacity: 0;
+    animation: slide-in-right 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-bounce-in {
+    opacity: 0;
+    animation: bounce-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-wiggle {
+    animation: wiggle 2s ease-in-out infinite;
+  }
+
+  /* Pricing page shadows (match reference) */
+  .premium-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 4px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+  .featured-shadow {
+    box-shadow: 0 20px 40px -15px rgba(126, 99, 248, 0.12), 0 8px 16px -8px rgba(126, 99, 248, 0.08);
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    font-family: 'Material Symbols Outlined';
+  }
+}
+/* ================= HERO INTRO ================= */
+
+
+/* CONFETTI CANVAS */
+
+#canvas{
+
+position:absolute;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:2;
+
+}
+
+
+
+/* HERO FULLSCREEN */
+
+.hero{
+
+position: relative;
+
+width:100%;
+min-height:100vh;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+text-align:center;
+
+background:white;
+
+overflow:hidden;
+
+}
+
+
+#canvas{
+
+position:absolute;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:0;
+
+}
+
+
+.logo-img{
+
+width:220px;
+
+}
+
+
+#headline{
+
+max-width:820px;
+
+font-size: clamp(42px,5vw,72px);
+
+font-weight:700;
+
+line-height:1.12;
+
+letter-spacing:-0.03em;
+
+margin:0 auto;
+
+}
+
+
+.btns{
+
+margin-top:48px;
+
+opacity:0;
+
+transform:translateY(20px);
+
+transition:.8s;
+
+}
+
+.btns.visible{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+.logo.shake{
+
+animation: logoShake 3s ease-in-out infinite;
+
+}
+
+
+@keyframes logoShake{
+
+0%{transform:rotate(0)}
+10%{transform:rotate(-15deg)}
+20%{transform:rotate(15deg)}
+30%{transform:rotate(-12deg)}
+40%{transform:rotate(12deg)}
+50%{transform:rotate(-8deg)}
+60%{transform:rotate(8deg)}
+70%{transform:rotate(-4deg)}
+80%{transform:rotate(4deg)}
+90%{transform:rotate(-2deg)}
+100%{transform:rotate(0)}
+
+}
+/* ================================= */
+/* SCROLL INTRO FINAL */
+/* ================================= */
+
+.scroll-intro {
+
+position: relative;
+
+min-height: 100vh;
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+justify-content: center;
+
+text-align: center;
+
+padding-left: 20px;
+padding-right: 20px;
+
+overflow: hidden;
+
+}
+
+
+
+
+#canvas{
+
+position:absolute;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+pointer-events:none;
+
+z-index:1;
+
+}
+
+
+
+.logo {
+
+margin-bottom: 40px;
+
+display: flex;
+
+justify-content: center;
+
+align-items: center;
+
+}
+
+
+
+
+.logo.visible{
+
+opacity:1;
+
+}
+#headline {
+
+font-size: clamp(42px, 5.2vw, 72px);
+
+font-weight: 700;
+
+line-height: 1.12;
+
+letter-spacing: -0.03em;
+
+text-align: center;
+width: 100%;
+max-width: 2000px;
+
+margin-left: auto;
+margin-right: auto;
+
+display: block;
+
+word-break: keep-all;
+
+}
+
+.typing-cursor{
+
+display:inline-block;
+
+width:3px;
+height:1em;
+
+margin-left:4px;
+
+vertical-align:bottom;
+
+background:linear-gradient(
+180deg,
+#4285F4,
+#EA4335,
+#FBBC05,
+#34A853
+);
+
+}
+
+.typing-cursor.blink{
+
+animation: blink 1s infinite;
+
+}
+
+@keyframes blink{
+
+0%,100%{opacity:1}
+50%{opacity:0}
+
+}
+
