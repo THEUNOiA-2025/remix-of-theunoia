@@ -120,7 +120,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-900" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <main className="flex justify-center py-5 px-4 lg:px-6">
+      <main className="flex justify-center py-3 sm:py-4 md:py-5 px-3 sm:px-4 lg:px-6">
         <div className="w-full max-w-[1100px] flex flex-col gap-4">
           {/* Back - visible at top, no hover background */}
           <div>
@@ -140,7 +140,7 @@ const CheckoutPage = () => {
               <span className="material-symbols-outlined text-[10px] font-bold">shield</span>
               Secure Payment
             </div>
-            <h1 className="text-slate-900 text-2xl font-black tracking-tight">Payment Summary</h1>
+            <h1 className="text-slate-900 text-xl sm:text-2xl font-black tracking-tight">Payment Summary</h1>
             <p className="text-slate-500 text-sm font-medium">Review details before proceeding to Razorpay</p>
           </div>
 
@@ -187,7 +187,7 @@ const CheckoutPage = () => {
                 {profileLoading ? (
                   <p className="text-slate-500 text-xs">Loading...</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Client Name</span>
                       <p className="text-slate-800 font-bold text-sm">{clientName}</p>
@@ -291,7 +291,7 @@ const CheckoutPage = () => {
 
           {/* Footer */}
           <footer className="mt-4 border-t border-slate-100 pt-6 pb-8 text-center flex flex-col items-center gap-4">
-            <div className="flex items-center gap-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
+            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
               <Link to="/terms-and-conditions" className="hover:text-[#7e63f8] transition-colors">Terms</Link>
               <span className="size-1 rounded-full bg-slate-300" />
               <Link to="/terms-and-conditions" className="hover:text-[#7e63f8] transition-colors">Privacy</Link>

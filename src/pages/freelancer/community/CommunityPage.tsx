@@ -891,17 +891,17 @@ export default function CommunityPage() {
     }
 
     return (
-      <main className="flex-1 py-12 px-4 md:px-8 bg-[#fdfdfd] flex justify-center min-h-screen overflow-x-hidden">
+      <main className="flex-1 py-6 md:py-12 px-3 sm:px-4 md:px-8 bg-[#fdfdfd] flex justify-center min-h-screen overflow-x-hidden">
         <div className="max-w-5xl w-full">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="rounded-[40px] border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden bg-white">
+            <Card className="rounded-2xl md:rounded-[40px] border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden bg-white">
               <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[700px]">
                 {/* Left Side: Branding / Info */}
-                <div className="lg:col-span-5 bg-[#7e63f8] p-12 text-white flex flex-col justify-between relative overflow-hidden">
+                <div className="lg:col-span-5 bg-[#7e63f8] p-6 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40 blur-3xl animate-pulse" />
                   <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#fbdd84]/10 rounded-full -ml-40 -mb-40 blur-3xl animate-pulse" />
 
@@ -916,7 +916,7 @@ export default function CommunityPage() {
                     <div className="bg-white/20 backdrop-blur-md w-fit px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-12 border border-white/30">
                       Academic Gateway
                     </div>
-                    <h1 className="text-5xl font-black mb-8 leading-[1.1] tracking-tight">
+                    <h1 className="text-3xl md:text-5xl font-black mb-6 md:mb-8 leading-[1.1] tracking-tight">
                       Verify Your <br /> Campus <br /> Identity
                     </h1>
                     <p className="text-white/80 font-medium leading-relaxed mb-12 text-lg">
@@ -968,7 +968,7 @@ export default function CommunityPage() {
                 </div>
 
                 {/* Right Side: Verification Form */}
-                <div className="lg:col-span-7 p-8 md:p-12 lg:p-16">
+                <div className="lg:col-span-7 p-4 sm:p-6 md:p-12 lg:p-16">
                   <form onSubmit={handleVerificationSubmit} className="space-y-12">
                     <div className="space-y-12">
                       {/* Personal Profile Section */}
@@ -1440,12 +1440,12 @@ export default function CommunityPage() {
       <div className="bg-white border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="h-16 bg-transparent border-0 gap-8">
+            <TabsList className="h-14 md:h-16 bg-transparent border-0 gap-2 md:gap-8 w-full justify-start overflow-x-auto no-scrollbar">
               {["Tasks Feed", "Leaderboard", "Members", "Settings"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab.toLowerCase().split(' ')[0]}
-                  className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-[#7e63f8] data-[state=active]:bg-transparent data-[state=active]:text-[#7e63f8] text-slate-500 font-bold px-4 transition-all"
+                  className="h-full whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-[#7e63f8] data-[state=active]:bg-transparent data-[state=active]:text-[#7e63f8] text-slate-500 font-bold px-3 md:px-4 transition-all"
                 >
                   {tab}
                 </TabsTrigger>
@@ -1455,7 +1455,7 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-8 lg:mt-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-8 mt-6 md:mt-8 lg:mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
           {/* Main Area */}

@@ -180,7 +180,7 @@ export default function BidsPage() {
 
   if (loading) {
     return (
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <p className="text-muted-foreground">Loading bids...</p>
         </div>
@@ -189,7 +189,7 @@ export default function BidsPage() {
   }
 
   return (
-    <main className="flex-1 p-8">
+    <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header with Credit Card */}
         <div className="mb-8">
@@ -200,7 +200,7 @@ export default function BidsPage() {
             </div>
             
             {/* Credit Balance Card - Primary Color */}
-            <Card className="rounded-2xl border bg-primary-purple min-w-[220px] overflow-hidden relative">
+            <Card className="rounded-2xl border bg-primary-purple w-full sm:min-w-[220px] sm:w-auto overflow-hidden relative">
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
               <CardContent className="p-5 relative">
                 <div className="flex items-center gap-4">

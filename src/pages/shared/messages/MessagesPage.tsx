@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ConversationItem } from '@/components/ConversationItem';
 import { MessageBubble } from '@/components/MessageBubble';
 import { useRealtimeMessages } from '@/hooks/useRealtimeMessages';
-import { Send, MessageSquare, Paperclip, Image as ImageIcon, X, IndianRupee, Clock, ExternalLink } from 'lucide-react';
+import { Send, MessageSquare, Paperclip, Image as ImageIcon, X, IndianRupee, Clock, ExternalLink, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { recordActivity } from '@/utils/dailyStreak';
@@ -22,6 +22,7 @@ export default function MessagesPage() {
   const [messageInput, setMessageInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showConversationList, setShowConversationList] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -261,12 +262,13 @@ export default function MessagesPage() {
   };
 
   const selectedConversation = conversations?.find(c => c.id === selectedConversationId);
+  const isMobileThreadOpen = !!selectedConversationId && !showConversationList;
 
   return (
-    <main className="flex h-screen overflow-hidden">
+    <main className="flex h-[calc(100vh-4rem)] md:h-screen overflow-hidden">
       {/* Left Column - Conversations List */}
-      <div className="w-80 border-r border-border flex flex-col bg-background h-full">
-        <div className="p-5 border-b border-border bg-gradient-to-r from-primary/10 to-accent-purple/10">
+      <div className={`${isMobileThreadOpen ? 'hidden' : 'flex'} md:flex w-full md:w-80 border-r border-border flex-col bg-background h-full`}>
+        <div className="p-4 md:p-5 border-b border-border bg-gradient-to-r from-primary/10 to-accent-purple/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-white" />
@@ -287,7 +289,10 @@ export default function MessagesPage() {
                 key={conversation.id}
                 conversation={conversation}
                 isActive={selectedConversationId === conversation.id}
-                onClick={() => setSelectedConversationId(conversation.id)}
+                onClick={() => {
+                  setSelectedConversationId(conversation.id);
+                  setShowConversationList(false);
+                }}
               />
             ))
           ) : (
@@ -305,17 +310,28 @@ export default function MessagesPage() {
       </div>
 
       {/* Middle Column - Active Chat */}
-      <div className="flex-1 flex flex-col bg-background h-full">
+      <div className={`${showConversationList ? 'hidden' : 'flex'} md:flex flex-1 flex-col bg-background h-full`}>
         {selectedConversationId && selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-border bg-muted/30">
-              <h2 className="font-semibold text-foreground">{selectedConversation.other_user_name}</h2>
+            <div className="p-3 md:p-4 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 md:hidden"
+                  onClick={() => setShowConversationList(true)}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <h2 className="font-semibold text-foreground">{selectedConversation.other_user_name}</h2>
+              </div>
               <p className="text-sm text-muted-foreground">{selectedConversation.project_title}</p>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 bg-background">
+            <div className="flex-1 overflow-y-auto p-3 md:p-6 bg-background">
               {messagesLoading ? (
                 <div className="text-center text-muted-foreground">Loading messages...</div>
               ) : messages && messages.length > 0 ? (
@@ -343,7 +359,7 @@ export default function MessagesPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-border bg-background">
+            <div className="p-3 md:p-4 border-t border-border bg-background">
               {/* Selected Files Preview */}
               {selectedFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -422,7 +438,7 @@ export default function MessagesPage() {
 
       {/* Right Column - Project Details */}
       {selectedConversationId && selectedConversation && (
-        <div className="w-80 border-l border-border p-4 bg-background h-full overflow-y-auto">
+        <div className="hidden lg:block w-80 border-l border-border p-4 bg-background h-full overflow-y-auto">
           <Card className="p-4 border-border bg-muted/20 space-y-4">
             <div>
               <h3 className="font-semibold text-foreground mb-1">Project Details</h3>

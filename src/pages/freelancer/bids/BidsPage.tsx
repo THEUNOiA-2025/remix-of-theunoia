@@ -265,7 +265,7 @@ export default function BidsPage() {
 
   if (loading) {
     return (
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <p className="text-muted-foreground">Loading bids...</p>
         </div>
@@ -274,7 +274,7 @@ export default function BidsPage() {
   }
 
   return (
-    <main className="flex-1 p-8">
+    <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-[1280px] mx-auto w-full">
         {/* Page Heading & Credit Balance */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
@@ -286,7 +286,7 @@ export default function BidsPage() {
           {/* Free Tokens Card (left) + Credit Balance / Paid Tokens Card (right) */}
           <div className="flex flex-wrap items-stretch gap-3">
             {/* Free Tokens – secondary container; warning content in primary */}
-            <Card className="rounded-xl border bg-secondary min-w-[200px] overflow-hidden relative">
+            <Card className="rounded-xl border bg-secondary w-full sm:min-w-[200px] sm:w-auto overflow-hidden relative">
               <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
               <CardContent className="p-4 relative flex flex-col gap-3">
                 <div className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export default function BidsPage() {
               </CardContent>
             </Card>
             {/* Credit Balance (Paid Tokens) */}
-            <Card className="rounded-xl border bg-primary-purple min-w-[200px] overflow-hidden relative">
+            <Card className="rounded-xl border bg-primary-purple w-full sm:min-w-[200px] sm:w-auto overflow-hidden relative">
               <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">

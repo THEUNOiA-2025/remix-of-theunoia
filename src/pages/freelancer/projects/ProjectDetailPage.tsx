@@ -701,11 +701,11 @@ const ProjectDetailPage = () => {
               projectCategory={project?.category || null}
             />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-7">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-7">
               <div className="lg:col-span-8 flex flex-col gap-7">
                 {/* Project Visual */}
                 <div className="flex flex-col gap-5">
-                  <div className="relative w-full max-w-[90%] aspect-[16/9] rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 group">
+                  <div className="relative w-full max-w-full md:max-w-[90%] aspect-[16/9] rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 group">
                     <video
                       src={encodeURI(PROJECT_VIDEOS[project.id.charCodeAt(0) % PROJECT_VIDEOS.length])}
                       className="absolute inset-0 w-full h-full object-cover"
@@ -719,7 +719,7 @@ const ProjectDetailPage = () => {
                   </div>
 
                   {/* Project Summary */}
-                  <div className="grid grid-cols-3 gap-5 p-5 bg-secondary border border-slate-100 rounded-2xl shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 p-4 sm:p-5 bg-secondary border border-slate-100 rounded-2xl shadow-sm">
                     <div className="flex flex-col">
                       <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-black mb-1.5">
                         {acceptedBid ? 'Accepted Bid' : 'Estimated Budget'}
@@ -728,7 +728,7 @@ const ProjectDetailPage = () => {
                         ₹{effectiveBudget.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex flex-col border-x border-slate-100 px-5">
+                    <div className="flex flex-col sm:border-x border-slate-100 sm:px-5">
                       <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-black mb-1.5">Target Deadline</span>
                       <span className="text-lg font-bold text-black">
                         {project.bidding_deadline ? format(new Date(project.bidding_deadline), "d MMM yyyy") : project.timeline || 'Flexible'}

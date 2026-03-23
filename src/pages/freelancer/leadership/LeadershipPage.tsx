@@ -100,7 +100,7 @@ const LeadershipPage = () => {
           </div>
         </section>
 
-        <div className="max-w-[1200px] mx-auto px-6 md:px-8">
+        <div className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-8">
           {/* White card – slightly reduced padding */}
           <div className="bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 deep-soft-shadow border purple-border -mt-8 relative z-20 mb-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
@@ -159,8 +159,8 @@ const LeadershipPage = () => {
           {/* Top 10 Ranking – table exactly like reference image */}
           <section className="mb-12">
             <h2 className="text-black text-2xl font-black tracking-tighter mb-6">Top 10 Ranking</h2>
-            <div className="overflow-hidden bg-white rounded-2xl border purple-border card-shadow">
-              <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto bg-white rounded-2xl border purple-border card-shadow">
+              <table className="w-full min-w-[700px] text-left border-collapse">
                 <thead>
                   <tr className="bg-primary/5">
                     <th className="px-4 md:px-6 py-3 text-black/60 text-xs font-bold uppercase tracking-widest">Rank</th>

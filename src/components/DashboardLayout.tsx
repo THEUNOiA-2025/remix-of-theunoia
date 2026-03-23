@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ChevronDown, Bell, MessageSquare, FileText, User, Loader2 } from 'lucide-react';
+import { Search, ChevronDown, Bell, MessageSquare, FileText, User, Loader2, Menu, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,6 +70,7 @@ export const DashboardLayout = () => {
   const [clientSearchLoading, setClientSearchLoading] = useState(false);
   const clientSearchRef = useRef<HTMLDivElement>(null);
   const [freelancerPopupOpen, setFreelancerPopupOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedFreelancer, setSelectedFreelancer] = useState<{
     user_id: string;
     first_name: string;
@@ -363,228 +364,289 @@ export const DashboardLayout = () => {
       <header
         className="sticky top-0 z-30 w-full border-b border-white/20 backdrop-blur-xl bg-white/80"
       >
-        <div className="mx-auto flex h-28 items-center px-4 sm:px-6">
+        <div className="mx-auto flex h-16 md:h-28 items-center px-3 sm:px-4 md:px-6">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center flex-shrink-0">
             <img
               src="/images/theunoia-logo.png"
               alt="Theunoia logo"
-              className="h-8 w-auto"
+              className="h-7 md:h-8 w-auto"
             />
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-6 ml-8">
-            {navLinks.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    'text-sm font-semibold text-black relative transition-colors',
-                    'hover:text-black',
-                    'after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300',
-                    'hover:after:w-full'
-                  )
-                }
+          <div className="hidden md:flex items-center flex-1">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-6 ml-8">
+              {navLinks.map((item) => (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      'text-sm font-semibold text-black relative transition-colors',
+                      'hover:text-black',
+                      'after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300',
+                      'hover:after:w-full'
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* Large Space */}
+            <div className="flex-1" />
+
+            {/* Search Bar – client: search freelancers (top 10 dropdown); freelancer: placeholder */}
+            <div className="flex items-center relative" ref={isClient ? clientSearchRef : undefined}>
+              <div className="flex items-center bg-white border border-gray-300 rounded-l-md px-4 h-10">
+                <Input
+                  type="text"
+                  placeholder={isClient ? "Search by role or skill (e.g. frontend developer, videographer)…" : "What service are you looking for today?"}
+                  className="h-full border-0 bg-transparent px-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 w-80"
+                  value={isClient ? clientSearchQuery : ''}
+                  onChange={isClient ? (e) => { setClientSearchQuery(e.target.value); setClientSearchOpen(true); } : undefined}
+                  onFocus={isClient ? () => setClientSearchOpen(true) : undefined}
+                  readOnly={!isClient}
+                />
+              </div>
+              <Button
+                type="button"
+                className="h-10 px-4 bg-primary hover:bg-primary/90 rounded-r-md rounded-l-none border-0 flex items-center justify-center"
               >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Large Space */}
-          <div className="flex-1" />
-
-          {/* Search Bar – client: search freelancers (top 10 dropdown); freelancer: placeholder */}
-          <div className="flex items-center relative" ref={isClient ? clientSearchRef : undefined}>
-            <div className="flex items-center bg-white border border-gray-300 rounded-l-md px-4 h-10">
-              <Input
-                type="text"
-                placeholder={isClient ? "Search by role or skill (e.g. frontend developer, videographer)…" : "What service are you looking for today?"}
-                className="h-full border-0 bg-transparent px-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 w-80"
-                value={isClient ? clientSearchQuery : ''}
-                onChange={isClient ? (e) => { setClientSearchQuery(e.target.value); setClientSearchOpen(true); } : undefined}
-                onFocus={isClient ? () => setClientSearchOpen(true) : undefined}
-                readOnly={!isClient}
-              />
-            </div>
-            <Button
-              type="button"
-              className="h-10 px-4 bg-primary hover:bg-primary/90 rounded-r-md rounded-l-none border-0 flex items-center justify-center"
-            >
-              {isClient && clientSearchLoading ? (
-                <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" />
-              ) : (
-                <Search className="w-5 h-5 text-primary-foreground" />
-              )}
-            </Button>
-            {isClient && clientSearchOpen && (clientSearchQuery.trim() || clientSearchResults.length > 0) && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border-2 border-gray-200 rounded-lg shadow-xl z-50 min-w-[380px] max-h-[320px] overflow-y-auto">
-                {clientSearchLoading ? (
-                  <div className="p-5 flex items-center justify-center gap-2 text-muted-foreground text-base">
-                    <Loader2 className="w-5 h-5 animate-spin" /> Searching…
-                  </div>
-                ) : clientSearchResults.length === 0 ? (
-                  <div className="p-5 text-muted-foreground text-base">
-                    {clientSearchQuery.trim() ? 'No freelancers found. Try "Sai Krishan" or skill keywords.' : 'Type to search (e.g. Sai Krishan).'}
-                  </div>
+                {isClient && clientSearchLoading ? (
+                  <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" />
                 ) : (
-                  <ul className="py-2">
-                    {clientSearchResults.slice(0, 10).map((f) => (
-                      <li key={f.user_id}>
+                  <Search className="w-5 h-5 text-primary-foreground" />
+                )}
+              </Button>
+              {isClient && clientSearchOpen && (clientSearchQuery.trim() || clientSearchResults.length > 0) && (
+                <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border-2 border-gray-200 rounded-lg shadow-xl z-50 min-w-[380px] max-h-[320px] overflow-y-auto">
+                  {clientSearchLoading ? (
+                    <div className="p-5 flex items-center justify-center gap-2 text-muted-foreground text-base">
+                      <Loader2 className="w-5 h-5 animate-spin" /> Searching…
+                    </div>
+                  ) : clientSearchResults.length === 0 ? (
+                    <div className="p-5 text-muted-foreground text-base">
+                      {clientSearchQuery.trim() ? 'No freelancers found. Try "Sai Krishan" or skill keywords.' : 'Type to search (e.g. Sai Krishan).'}
+                    </div>
+                  ) : (
+                    <ul className="py-2">
+                      {clientSearchResults.slice(0, 10).map((f) => (
+                        <li key={f.user_id}>
+                          <button
+                            type="button"
+                            className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted/70 transition-colors rounded mx-1"
+                            onClick={() => {
+                              setSelectedFreelancer(f);
+                              setFreelancerPopupOpen(true);
+                              setClientSearchOpen(false);
+                              setClientSearchQuery('');
+                              setClientSearchResults([]);
+                            }}
+                          >
+                            <Avatar className="h-12 w-12 rounded-full flex-shrink-0 border-2 border-primary/20">
+                              <AvatarImage src={f.profile_picture_url ?? undefined} alt="" />
+                              <AvatarFallback className="bg-primary/10 text-primary text-base font-semibold">
+                                {(f.first_name?.[0] ?? '') + (f.last_name?.[0] ?? '') || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-semibold text-foreground text-base truncate">
+                              {f.first_name} {f.last_name}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Notification Button */}
+            <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 ml-4 relative"
+                >
+                  <Bell className="w-5 h-5" />
+                  {totalNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
+                      {totalNotifications > 9 ? '9+' : totalNotifications}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="end">
+                <div className="p-3.5 border-b border-border">
+                  <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
+                </div>
+                <div className="max-h-72 overflow-y-auto">
+                  {totalNotifications === 0 ? (
+                    <div className="p-3.5 text-center text-muted-foreground text-xs">
+                      No new notifications
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      {unreadMessages > 0 && (
                         <button
-                          type="button"
-                          className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted/70 transition-colors rounded mx-1"
+                          className="w-full px-3.5 py-2.5 text-left hover:bg-muted/50 flex items-center gap-2.5 border-b border-border/40"
                           onClick={() => {
-                            setSelectedFreelancer(f);
-                            setFreelancerPopupOpen(true);
-                            setClientSearchOpen(false);
-                            setClientSearchQuery('');
-                            setClientSearchResults([]);
+                            navigate('/messages');
+                            setNotificationsOpen(false);
                           }}
                         >
-                          <Avatar className="h-12 w-12 rounded-full flex-shrink-0 border-2 border-primary/20">
-                            <AvatarImage src={f.profile_picture_url ?? undefined} alt="" />
-                            <AvatarFallback className="bg-primary/10 text-primary text-base font-semibold">
-                              {(f.first_name?.[0] ?? '') + (f.last_name?.[0] ?? '') || '?'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="font-semibold text-foreground text-base truncate">
-                            {f.first_name} {f.last_name}
-                          </span>
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <MessageSquare className="w-3 h-3 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs font-medium text-foreground">Unread Messages</p>
+                            <p className="text-[11px] text-muted-foreground">{unreadMessages} new message{unreadMessages > 1 ? 's' : ''}</p>
+                          </div>
                         </button>
-                      </li>
-                    ))}
-                  </ul>
+                      )}
+                      {newBidsOnProjects.map((bid) => (
+                        <button
+                          key={bid.id}
+                          className="w-full px-3 py-2 text-left hover:bg-muted/50 flex items-center gap-2 border-b border-border/40 last:border-b-0"
+                          onClick={() => {
+                            navigate(`/projects/${bid.user_projects.id}`);
+                            setNotificationsOpen(false);
+                          }}
+                        >
+                          <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <FileText className="w-3 h-3 text-green-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground truncate">New bid: ₹{bid.amount}</p>
+                            <p className="text-[11px] text-muted-foreground truncate">{bid.user_projects.title}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Profile Avatar */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="ml-4 flex items-center gap-1.5"
+                >
+                  <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-md hover:bg-gray-50">
+                    <User className="w-4 h-4 text-foreground transition-transform duration-300" />
+                  </div>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="text-xs">
+                  {displayName}
+                  <div className="text-[10px] text-muted-foreground truncate">
+                    {displayEmail}
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {!isClient && (
+                  <DropdownMenuItem onClick={() => navigate('/bids')}>
+                    My Bids
+                  </DropdownMenuItem>
                 )}
+                <DropdownMenuItem onClick={() => navigate('/calendar')}>
+                  Calendar
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  Profile
+                </DropdownMenuItem>
+                {!isClient && (
+                  <DropdownMenuItem onClick={() => navigate('/leadership')}>
+                    Leadership Board
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="ml-auto flex items-center gap-1.5 md:hidden">
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/messages')}>
+              <MessageSquare className="w-4 h-4" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                  <Bell className="w-4 h-4" />
+                  {totalNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
+                      {totalNotifications > 9 ? '9+' : totalNotifications}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => navigate('/messages')}>Open messages</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>Go to dashboard</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setMobileMenuOpen((prev) => !prev)}>
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/30 bg-white/90 backdrop-blur px-3 pb-3 pt-2">
+            <div className="grid grid-cols-2 gap-2">
+              {navLinks.map((item) => (
+                <Button
+                  key={item.to}
+                  variant="outline"
+                  className="justify-start h-9"
+                  onClick={() => {
+                    navigate(item.to);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </div>
+            {isClient && (
+              <div className="mt-2 flex items-center gap-2" ref={clientSearchRef}>
+                <Input
+                  type="text"
+                  placeholder="Search freelancers"
+                  className="h-9"
+                  value={clientSearchQuery}
+                  onChange={(e) => { setClientSearchQuery(e.target.value); setClientSearchOpen(true); }}
+                  onFocus={() => setClientSearchOpen(true)}
+                />
+                <Button type="button" size="icon" className="h-9 w-9">
+                  <Search className="w-4 h-4" />
+                </Button>
               </div>
             )}
           </div>
-
-          {/* Notification Button */}
-          <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 ml-4 relative"
-              >
-                <Bell className="w-5 h-5" />
-                {totalNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-medium">
-                    {totalNotifications > 9 ? '9+' : totalNotifications}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-72 p-0" align="end">
-              <div className="p-3.5 border-b border-border">
-                <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
-              </div>
-              <div className="max-h-72 overflow-y-auto">
-                {totalNotifications === 0 ? (
-                  <div className="p-3.5 text-center text-muted-foreground text-xs">
-                    No new notifications
-                  </div>
-                ) : (
-                  <div className="py-2">
-                    {unreadMessages > 0 && (
-                      <button
-                        className="w-full px-3.5 py-2.5 text-left hover:bg-muted/50 flex items-center gap-2.5 border-b border-border/40"
-                        onClick={() => {
-                          navigate('/messages');
-                          setNotificationsOpen(false);
-                        }}
-                      >
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <MessageSquare className="w-3 h-3 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-foreground">Unread Messages</p>
-                          <p className="text-[11px] text-muted-foreground">{unreadMessages} new message{unreadMessages > 1 ? 's' : ''}</p>
-                        </div>
-                      </button>
-                    )}
-                    {newBidsOnProjects.map((bid) => (
-                      <button
-                        key={bid.id}
-                        className="w-full px-3 py-2 text-left hover:bg-muted/50 flex items-center gap-2 border-b border-border/40 last:border-b-0"
-                        onClick={() => {
-                          navigate(`/projects/${bid.user_projects.id}`);
-                          setNotificationsOpen(false);
-                        }}
-                      >
-                        <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                          <FileText className="w-3 h-3 text-green-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground truncate">New bid: ₹{bid.amount}</p>
-                          <p className="text-[11px] text-muted-foreground truncate">{bid.user_projects.title}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Profile Avatar */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="ml-4 flex items-center gap-1.5"
-              >
-                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-md hover:bg-gray-50">
-                  <User className="w-4 h-4 text-foreground transition-transform duration-300" />
-                </div>
-                <ChevronDown className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="text-xs">
-                {displayName}
-                <div className="text-[10px] text-muted-foreground truncate">
-                  {displayEmail}
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {!isClient && (
-                <DropdownMenuItem onClick={() => navigate('/bids')}>
-                  My Bids
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => navigate('/calendar')}>
-                Calendar
-              </DropdownMenuItem>
-              {isAdmin && (
-                <DropdownMenuItem onClick={() => navigate('/admin')}>
-                  Admin Panel
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => navigate('/profile')}>
-                Profile
-              </DropdownMenuItem>
-              {!isClient && (
-                <DropdownMenuItem onClick={() => navigate('/leadership')}>
-                  Leadership Board
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        )}
       </header>
 
       <main
         className={cn(
           'w-full min-h-screen',
-          location.pathname === '/messages' ? '' : location.pathname === '/leadership' ? 'p-0' : 'p-6 pt-4',
+          location.pathname === '/messages' ? '' : location.pathname === '/leadership' ? 'p-0' : 'p-3 sm:p-4 md:p-6 md:pt-4',
           (location.pathname === '/profile' || location.pathname.startsWith('/profile/') || location.pathname === '/leadership' || (location.pathname === '/dashboard' && isClient)) && 'bg-[#faf7f1]'
         )}
       >

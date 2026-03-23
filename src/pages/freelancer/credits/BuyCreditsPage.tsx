@@ -28,7 +28,7 @@ const BuyCreditsPage = () => {
 
   return (
     <div className="bg-white min-h-screen antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <main className="max-w-[1200px] mx-auto px-6 pt-4 pb-10 lg:pt-6 lg:pb-12">
+      <main className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 pt-3 md:pt-4 pb-8 md:pb-10 lg:pt-6 lg:pb-12">
         {/* Free Token Policy – freelancers only */}
         <section className="mb-16">
           <FreeTokenPolicySection />
@@ -36,7 +36,7 @@ const BuyCreditsPage = () => {
 
         {/* Heading Section */}
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <h1 className="text-3xl lg:text-4xl font-black text-[#111118] mb-4 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#111118] mb-4 tracking-tight">
             Simple, transparent pricing
           </h1>
           <p className="text-base text-[#60608a] font-medium">
@@ -45,9 +45,9 @@ const BuyCreditsPage = () => {
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 items-start">
           {/* Starter Card */}
-          <div className="bg-white rounded-xl p-8 border border-[#dbdbe6] premium-shadow flex flex-col h-full hover:translate-y-[-4px] transition-transform duration-300">
+          <div className="bg-white rounded-xl p-5 md:p-8 border border-[#dbdbe6] premium-shadow flex flex-col h-full hover:translate-y-[-4px] transition-transform duration-300">
             <div className="mb-8">
               <h3 className="text-sm font-bold uppercase tracking-widest text-[#60608a] mb-4">Starter</h3>
               <div className="flex items-baseline gap-2">
@@ -88,7 +88,7 @@ const BuyCreditsPage = () => {
           </div>
 
           {/* Value Card */}
-          <div className="bg-white rounded-xl p-8 border-2 border-[#fbdd84] premium-shadow flex flex-col h-full relative hover:translate-y-[-4px] transition-transform duration-300">
+          <div className="bg-white rounded-xl p-5 md:p-8 border-2 border-[#fbdd84] premium-shadow flex flex-col h-full relative hover:translate-y-[-4px] transition-transform duration-300">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-[#fbdd84] text-[#111118] text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm">
                 Best Value
@@ -134,7 +134,7 @@ const BuyCreditsPage = () => {
           </div>
 
           {/* Pro Card */}
-          <div className="bg-white rounded-xl p-8 border-2 border-[#7e63f8] premium-shadow flex flex-col h-full relative hover:translate-y-[-4px] transition-transform duration-300">
+          <div className="bg-white rounded-xl p-5 md:p-8 border-2 border-[#7e63f8] premium-shadow flex flex-col h-full relative hover:translate-y-[-4px] transition-transform duration-300">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-[#7e63f8] text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
                 Most Popular
@@ -182,7 +182,7 @@ const BuyCreditsPage = () => {
 
         {/* Enterprise Features Section */}
         <div className="mt-20 pt-14 border-t border-[#f0f0f5]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 items-center">
             <div>
               <h2 className="text-2xl font-black text-[#111118] mb-4 leading-tight">
                 Enterprise-grade security and support
@@ -229,7 +229,7 @@ const BuyCreditsPage = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-[#f8f8fb] rounded-xl p-6 relative overflow-hidden h-[340px]">
+            <div className="bg-[#f8f8fb] rounded-xl p-4 md:p-6 relative overflow-hidden min-h-[300px] md:h-[340px]">
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,rgba(126,99,248,0.35)_0%,transparent_70%)]" />
               <div className="relative z-10 flex flex-col justify-between h-full">
                 <div className="flex items-center justify-between mb-6">

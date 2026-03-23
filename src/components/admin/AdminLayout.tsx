@@ -36,7 +36,7 @@ export const AdminLayout = () => {
   return (
     <div className="min-h-screen bg-background">
       <AdminSidebar />
-      <main className="ml-64 p-8">
+      <main className="p-3 sm:p-4 md:p-6 lg:ml-64 lg:p-8">
         <Outlet />
       </main>
     </div>
