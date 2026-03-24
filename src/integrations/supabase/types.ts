@@ -231,29 +231,35 @@ export type Database = {
       }
       email_verification_codes: {
         Row: {
+          attempt_count: number
           code: string
           created_at: string | null
           email: string
           expires_at: string
           id: string
+          invalidated_at: string | null
           user_id: string
           verified_at: string | null
         }
         Insert: {
+          attempt_count?: number
           code: string
           created_at?: string | null
           email: string
           expires_at: string
           id?: string
+          invalidated_at?: string | null
           user_id: string
           verified_at?: string | null
         }
         Update: {
+          attempt_count?: number
           code?: string
           created_at?: string | null
           email?: string
           expires_at?: string
           id?: string
+          invalidated_at?: string | null
           user_id?: string
           verified_at?: string | null
         }
@@ -653,6 +659,7 @@ export type Database = {
       student_verifications: {
         Row: {
           college_id: string | null
+          community_key: string | null
           created_at: string | null
           email_verified: boolean | null
           email_verified_at: string | null
@@ -662,6 +669,8 @@ export type Database = {
           institute_email: string | null
           institute_name: string | null
           rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           updated_at: string | null
           user_id: string
           verification_method: string | null
@@ -672,6 +681,7 @@ export type Database = {
         }
         Insert: {
           college_id?: string | null
+          community_key?: string | null
           created_at?: string | null
           email_verified?: boolean | null
           email_verified_at?: string | null
@@ -681,6 +691,8 @@ export type Database = {
           institute_email?: string | null
           institute_name?: string | null
           rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           updated_at?: string | null
           user_id: string
           verification_method?: string | null
@@ -691,6 +703,7 @@ export type Database = {
         }
         Update: {
           college_id?: string | null
+          community_key?: string | null
           created_at?: string | null
           email_verified?: boolean | null
           email_verified_at?: string | null
@@ -700,6 +713,8 @@ export type Database = {
           institute_email?: string | null
           institute_name?: string | null
           rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           updated_at?: string | null
           user_id?: string
           verification_method?: string | null
@@ -874,6 +889,7 @@ export type Database = {
           category: string | null
           client_feedback: string | null
           community_college_id: string | null
+          community_key: string | null
           completed_at: string | null
           completion_data: Json | null
           cover_image_url: string | null
@@ -900,6 +916,7 @@ export type Database = {
           category?: string | null
           client_feedback?: string | null
           community_college_id?: string | null
+          community_key?: string | null
           completed_at?: string | null
           completion_data?: Json | null
           cover_image_url?: string | null
@@ -926,6 +943,7 @@ export type Database = {
           category?: string | null
           client_feedback?: string | null
           community_college_id?: string | null
+          community_key?: string | null
           completed_at?: string | null
           completion_data?: Json | null
           cover_image_url?: string | null
@@ -1092,16 +1110,30 @@ export type Database = {
         Args: { _amount: number; _notes?: string; _target_user_id: string }
         Returns: number
       }
+      compute_community_key: {
+        Args: { p_college_id: string; p_institute_name: string }
+        Returns: string
+      }
       get_college_states: {
         Args: never
         Returns: {
           state: string
         }[]
       }
+      get_community_dashboard: {
+        Args: {
+          p_category?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+        }
+        Returns: Json
+      }
       get_freelancer_credit_balance: {
         Args: { _user_id: string }
         Returns: number
       }
+      get_my_community_context: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1113,9 +1145,122 @@ export type Database = {
         Args: { _required_credits?: number; _user_id: string }
         Returns: boolean
       }
+      normalize_community_name: {
+        Args: { input_name: string }
+        Returns: string
+      }
+      resolve_my_community_key: { Args: never; Returns: string }
+      review_student_verification: {
+        Args: {
+          p_action: string
+          p_rejection_reason?: string
+          p_verification_id: string
+        }
+        Returns: {
+          college_id: string | null
+          community_key: string | null
+          created_at: string | null
+          email_verified: boolean | null
+          email_verified_at: string | null
+          enrollment_id: string | null
+          id: string
+          id_card_url: string | null
+          institute_email: string | null
+          institute_name: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string | null
+          user_id: string
+          verification_method: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "student_verifications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_project_completion: {
         Args: { p_attachments: Json; p_message: string; p_project_id: string }
         Returns: undefined
+      }
+      update_community_member_settings: {
+        Args: { p_enrollment_id: string; p_institute_email: string }
+        Returns: {
+          college_id: string | null
+          community_key: string | null
+          created_at: string | null
+          email_verified: boolean | null
+          email_verified_at: string | null
+          enrollment_id: string | null
+          id: string
+          id_card_url: string | null
+          institute_email: string | null
+          institute_name: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string | null
+          user_id: string
+          verification_method: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "student_verifications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      upsert_student_verification_submission: {
+        Args: {
+          p_college_id: string
+          p_email_verified: boolean
+          p_enrollment_id: string
+          p_first_name: string
+          p_id_card_url: string
+          p_institute_email: string
+          p_institute_name: string
+          p_last_name: string
+          p_phone: string
+          p_verification_method: string
+        }
+        Returns: {
+          college_id: string | null
+          community_key: string | null
+          created_at: string | null
+          email_verified: boolean | null
+          email_verified_at: string | null
+          enrollment_id: string | null
+          id: string
+          id_card_url: string | null
+          institute_email: string | null
+          institute_name: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string | null
+          user_id: string
+          verification_method: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "student_verifications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       user_has_bid_on_project: {
         Args: { _project_id: string; _user_id: string }
