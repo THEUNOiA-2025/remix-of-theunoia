@@ -231,6 +231,7 @@ export type Database = {
       }
       email_verification_codes: {
         Row: {
+
           attempt_count: number
           code: string
           created_at: string | null
@@ -238,10 +239,12 @@ export type Database = {
           expires_at: string
           id: string
           invalidated_at: string | null
+          invalidated_at: string | null
           user_id: string
           verified_at: string | null
         }
         Insert: {
+          attempt_count?: number
           attempt_count?: number
           code: string
           created_at?: string | null
@@ -249,16 +252,19 @@ export type Database = {
           expires_at: string
           id?: string
           invalidated_at?: string | null
+          invalidated_at?: string | null
           user_id: string
           verified_at?: string | null
         }
         Update: {
+          attempt_count?: number
           attempt_count?: number
           code?: string
           created_at?: string | null
           email?: string
           expires_at?: string
           id?: string
+          invalidated_at?: string | null
           invalidated_at?: string | null
           user_id?: string
           verified_at?: string | null
@@ -660,6 +666,7 @@ export type Database = {
         Row: {
           college_id: string | null
           community_key: string | null
+          community_key: string | null
           created_at: string | null
           email_verified: boolean | null
           email_verified_at: string | null
@@ -669,6 +676,8 @@ export type Database = {
           institute_email: string | null
           institute_name: string | null
           rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           updated_at: string | null
@@ -682,6 +691,7 @@ export type Database = {
         Insert: {
           college_id?: string | null
           community_key?: string | null
+          community_key?: string | null
           created_at?: string | null
           email_verified?: boolean | null
           email_verified_at?: string | null
@@ -691,6 +701,8 @@ export type Database = {
           institute_email?: string | null
           institute_name?: string | null
           rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           updated_at?: string | null
@@ -704,6 +716,7 @@ export type Database = {
         Update: {
           college_id?: string | null
           community_key?: string | null
+          community_key?: string | null
           created_at?: string | null
           email_verified?: boolean | null
           email_verified_at?: string | null
@@ -713,6 +726,8 @@ export type Database = {
           institute_email?: string | null
           institute_name?: string | null
           rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           updated_at?: string | null
@@ -890,6 +905,7 @@ export type Database = {
           client_feedback: string | null
           community_key: string | null
           community_college_id: string | null
+          community_key: string | null
           completed_at: string | null
           completion_data: Json | null
           cover_image_url: string | null
@@ -917,6 +933,7 @@ export type Database = {
           client_feedback?: string | null
           community_key?: string | null
           community_college_id?: string | null
+          community_key?: string | null
           completed_at?: string | null
           completion_data?: Json | null
           cover_image_url?: string | null
@@ -944,6 +961,7 @@ export type Database = {
           client_feedback?: string | null
           community_key?: string | null
           community_college_id?: string | null
+          community_key?: string | null
           completed_at?: string | null
           completion_data?: Json | null
           cover_image_url?: string | null
@@ -1119,6 +1137,15 @@ export type Database = {
         Returns: {
           state: string
         }[]
+      }
+      get_community_dashboard: {
+        Args: {
+          p_category?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+        }
+        Returns: Json
       }
       get_community_dashboard: {
         Args: {
