@@ -429,7 +429,9 @@ export default function CommunityPage() {
       toast.error("Please enter your email address");
       return;
     }
-    const accessToken = session?.access_token;
+    const { data: authData } = await supabase.auth.getSession();
+    const accessToken =
+      authData.session?.access_token ?? session?.access_token;
     if (!accessToken) {
       toast.error("Please log in again to verify your email.");
       return;
@@ -465,7 +467,9 @@ export default function CommunityPage() {
 
   const handleVerifyCode = async () => {
     if (otpCode.length !== 6) return;
-    const accessToken = session?.access_token;
+    const { data: authData } = await supabase.auth.getSession();
+    const accessToken =
+      authData.session?.access_token ?? session?.access_token;
     if (!accessToken) {
       toast.error("Please log in again to verify your email.");
       return;

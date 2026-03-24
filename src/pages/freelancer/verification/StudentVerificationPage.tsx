@@ -314,14 +314,11 @@ const StudentVerificationPage = () => {
       return;
     }
 
-    if (!session?.access_token) {
-      toast.error("Please log in to continue");
-      return;
-    }
-
-    const accessToken = session?.access_token;
+    const { data: authData } = await supabase.auth.getSession();
+    const accessToken =
+      authData.session?.access_token ?? session?.access_token;
     if (!accessToken) {
-      toast.error("Please log in again to verify your email.");
+      toast.error("Please log in to continue");
       return;
     }
 
@@ -355,14 +352,11 @@ const StudentVerificationPage = () => {
       return;
     }
 
-    if (!session?.access_token) {
-      toast.error("Please log in to continue");
-      return;
-    }
-
-    const accessToken = session?.access_token;
+    const { data: authData } = await supabase.auth.getSession();
+    const accessToken =
+      authData.session?.access_token ?? session?.access_token;
     if (!accessToken) {
-      toast.error("Please log in again to verify your email.");
+      toast.error("Please log in to continue");
       return;
     }
 
