@@ -319,21 +319,22 @@ const StudentVerificationPage = () => {
       return;
     }
 
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      toast.error("Please log in again to verify your email.");
+      return;
+    }
+
     setSendingCode(true);
     try {
       console.log("Attempting to send OTP to:", formData.instituteEmail);
       const response = await supabase.functions.invoke('send-email-verification', {
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: { email: formData.instituteEmail },
       });
 
       if (response.error || response.data?.error) {
-        // Fallback for any error to enable DEMO MODE during development/demoing
-        console.warn("Edge function error. Enabling DEMO MODE for verification.");
-        toast.info("Backend is being configured. Using Demo Mode.");
-        toast.success("DEMO MODE: Use code '123456' to proceed.");
-        setEmailVerificationStep('sent');
-        setResendCountdown(60);
-        return;
+        throw new Error(response.error?.message || response.data?.error || "Failed to send verification code");
       }
 
       setEmailVerificationStep('sent');
@@ -342,12 +343,7 @@ const StudentVerificationPage = () => {
       toast.success("Verification code sent to " + formData.instituteEmail);
     } catch (err: any) {
       console.error('Error sending code:', err);
-      // Failsafe: also trigger demo mode on catch
-      console.warn("Catch block error. Triggering DEMO MODE.");
-      toast.info("Using Demo Mode (Backend busy or unconfigured).");
-      toast.success("DEMO MODE: Use code '123456' to proceed.");
-      setEmailVerificationStep('sent');
-      setResendCountdown(60);
+      toast.error(err?.message || "Failed to send verification code");
     } finally {
       setSendingCode(false);
     }
@@ -364,18 +360,17 @@ const StudentVerificationPage = () => {
       return;
     }
 
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      toast.error("Please log in again to verify your email.");
+      return;
+    }
+
     setVerifyingCode(true);
     try {
-      // Demo mode support
-      if (otpCode === '123456') {
-        console.warn("Using DEMO MODE for verification.");
-        setEmailVerificationStep('verified');
-        toast.success("Email verified (Demo Mode)!");
-        return;
-      }
-
       const response = await supabase.functions.invoke('verify-email-code', {
-        body: { 
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: {
           email: formData.instituteEmail,
           code: otpCode,
         },
@@ -521,20 +516,18 @@ const StudentVerificationPage = () => {
       }
 
       const isFeaturedCollege = selectedCollege.startsWith('f');
-      const verificationData: any = {
-        user_id: user.id,
-        college_id: isFeaturedCollege ? null : selectedCollege,
-        institute_name: isFeaturedCollege ? (selectedCollegeData?.name || getSelectedCollegeDisplay()) : null,
-        institute_email: formData.instituteEmail || null,
-        enrollment_id: formData.enrollmentId || null,
-        verification_status: "pending",
-        id_card_url: idCardUrl,
-        verification_method: hasVerifiedEmail ? 'email' : 'id_card',
-        email_verified: hasVerifiedEmail,
-        email_verified_at: hasVerifiedEmail ? new Date().toISOString() : null,
-      };
-
-      const { error } = await supabase.from("student_verifications").upsert(verificationData, { onConflict: 'user_id' });
+      const { error } = await supabase.rpc('upsert_student_verification_submission', {
+        p_first_name: formData.firstName,
+        p_last_name: formData.lastName,
+        p_phone: formData.phone,
+        p_institute_email: formData.instituteEmail || null,
+        p_enrollment_id: formData.enrollmentId || null,
+        p_college_id: isFeaturedCollege ? null : selectedCollege,
+        p_institute_name: isFeaturedCollege ? (selectedCollegeData?.name || getSelectedCollegeDisplay()) : null,
+        p_id_card_url: idCardUrl || null,
+        p_email_verified: hasVerifiedEmail,
+        p_verification_method: hasVerifiedEmail ? 'email' : 'id_card',
+      });
 
       if (error) throw error;
 

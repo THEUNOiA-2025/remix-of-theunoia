@@ -83,13 +83,11 @@ export const VerificationTable = ({ verifications, onRefresh }: VerificationTabl
   const handleApprove = async (verification: Verification) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('student_verifications')
-        .update({
-          verification_status: 'approved',
-          verified_at: new Date().toISOString(),
-        })
-        .eq('id', verification.id);
+      const { error } = await supabase.rpc('review_student_verification', {
+        p_verification_id: verification.id,
+        p_action: 'approve',
+        p_rejection_reason: null,
+      });
 
       if (error) throw error;
       toast.success('Verification approved successfully');
@@ -107,13 +105,11 @@ export const VerificationTable = ({ verifications, onRefresh }: VerificationTabl
     
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('student_verifications')
-        .update({
-          verification_status: 'rejected',
-          rejection_reason: rejectionReason || null,
-        })
-        .eq('id', selectedVerification.id);
+      const { error } = await supabase.rpc('review_student_verification', {
+        p_verification_id: selectedVerification.id,
+        p_action: 'reject',
+        p_rejection_reason: rejectionReason || null,
+      });
 
       if (error) throw error;
       toast.success('Verification rejected');

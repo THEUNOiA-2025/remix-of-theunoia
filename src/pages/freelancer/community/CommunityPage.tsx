@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"; 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -183,7 +183,7 @@ const FEATURED_COLLEGES = [
 ];
 
 export default function CommunityPage() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userCollege, setUserCollege] = useState<College | null>(null);
@@ -230,24 +230,20 @@ export default function CommunityPage() {
 
   const fetchCommunityData = async () => {
     try {
-      // 1. Fetch Verification & College
-      const { data: verification, error: verError } = await supabase
-        .from('student_verifications')
-        .select('verification_status, college_id, institute_name, colleges(id, name, short_name, city, state), institute_email, enrollment_id, id_card_url, email_verified')
-        .eq('user_id', user?.id)
-        .maybeSingle();
+      const { data: contextData, error: contextError } = await supabase.rpc('get_my_community_context');
+      if (contextError) throw contextError;
 
-      if (verError) throw verError;
-
+      const verification = contextData?.verification;
       if (verification) {
-        setVerificationStatus(verification.verification_status);
-        if (verification.verification_status === 'approved') {
-          setIsVerified(true);
-          setUserCollege(verification.colleges || (verification.institute_name ? { name: verification.institute_name, short_name: verification.institute_name.substring(0, 3).toUpperCase() } : null) as any);
-        } else if (verification.verification_status === 'pending') {
-          setVerificationPending(true);
-          setUserCollege(verification.colleges || (verification.institute_name ? { name: verification.institute_name } : null) as any);
-        }
+        setVerificationStatus(verification.verification_status || null);
+        setVerificationPending(verification.verification_status === 'pending');
+        setIsVerified(verification.verification_status === 'approved');
+
+        const college = verification.college || (verification.institute_name
+          ? { name: verification.institute_name, short_name: verification.institute_name.substring(0, 3).toUpperCase() }
+          : null);
+        setUserCollege(college as any);
+
         setVerificationForm({
           firstName: user?.user_metadata?.first_name || '',
           lastName: user?.user_metadata?.last_name || '',
@@ -256,101 +252,32 @@ export default function CommunityPage() {
           enrollmentNumber: verification.enrollment_id || '',
           manualUniversity: ''
         });
-        if (verification.email_verified) setEmailVerificationStep('verified');
 
-
-        if (verification.college_id || verification.institute_name) {
-          const collegeId = verification.college_id;
-          const instituteName = verification.institute_name;
-          // For virtual colleges (starting with 0000...), we use the timeline field for name matching
-          const virtualId = getCommunityUUID(collegeId || instituteName);
-
-          const memberFilter = collegeId
-            ? `college_id.eq.${collegeId}`
-            : `institute_name.eq."${instituteName}"`;
-
-          // 2. Fetch Members from same college
-          const { data: membersData, error: membersError } = await supabase
-            .from('student_verifications')
-            .select(`
-              user_id, 
-              user_profiles(user_id, first_name, last_name, bio, profile_picture_url)
-            `)
-            .or(memberFilter)
-            .eq('verification_status', 'approved');
-
-          if (membersError) throw membersError;
-
-          // 3. Fetch Tasks with profile info and bid count
-          const { data: tasksData, error: tasksError } = await supabase
-            .from('user_projects')
-            .select(`
-              *,
-              user_profiles(first_name, last_name, profile_picture_url),
-              bids(count)
-            `)
-            .eq('is_community_task', true)
-            .or(`community_college_id.eq.${collegeId || '00000000-0000-0000-0000-000000000000'},timeline.eq."${instituteName || ''}"`)
-            .order('created_at', { ascending: false });
-
-          if (tasksError) throw tasksError;
-
-          // 4. Fetch Earning Stats
-          const { data: acceptedBids, error: bidsError } = await supabase
-            .from('bids')
-            .select('amount, freelancer_id, project_id, user_projects!inner(is_community_task, community_college_id)')
-            .eq('status', 'accepted')
-            .filter('user_projects.is_community_task', 'eq', true)
-            .or(`community_college_id.eq.${collegeId || '00000000-0000-0000-0000-000000000000'},timeline.eq."${instituteName || ''}"`, { foreignTable: 'user_projects' });
-
-          if (bidsError) console.error("Error fetching bids:", bidsError);
-
-          const memberStats: Record<string, { earned: number, completed: number }> = {};
-          acceptedBids?.forEach(bid => {
-            if (!memberStats[bid.freelancer_id]) memberStats[bid.freelancer_id] = { earned: 0, completed: 0 };
-            memberStats[bid.freelancer_id].earned += bid.amount;
-            memberStats[bid.freelancer_id].completed += 1;
-          });
-
-          const formattedMembers = membersData
-            ?.filter(m => m.user_profiles)
-            .map(m => {
-              const profile = m.user_profiles as any;
-              return {
-                ...profile,
-                user_id: m.user_id,
-                total_earned: memberStats[m.user_id]?.earned || 0,
-                tasks_completed: memberStats[m.user_id]?.completed || 0
-              };
-            }) || [];
-
-          // Always ensure the current user is in the list if approved
-          if (verification.verification_status === 'approved' && !formattedMembers.some(m => m.user_id === user?.id)) {
-            const myProfile = {
-              user_id: user?.id,
-              first_name: user?.user_metadata?.first_name || verificationForm.firstName || 'Student',
-              last_name: user?.user_metadata?.last_name || verificationForm.lastName || '',
-              bio: '',
-              profile_picture_url: user?.user_metadata?.avatar_url || null,
-              total_earned: memberStats[user?.id || '']?.earned || 0,
-              tasks_completed: memberStats[user?.id || '']?.completed || 0
-            };
-            formattedMembers.unshift(myProfile as any);
-          }
-
-          setMembers(formattedMembers);
-
-          const formattedTasks = (tasksData as any[])?.map(t => ({
-            ...t,
-            user_profiles: Array.isArray(t.user_profiles) ? t.user_profiles[0] : t.user_profiles,
-            applicant_count: t.bids?.[0]?.count || 0
-          })) || [];
-          setTasks(formattedTasks as CommunityTask[]);
-          
-          // Extract unique categories for filter
-          const uniqueCats = Array.from(new Set(formattedTasks.map(t => t.category).filter(Boolean)));
-          setCategories(uniqueCats);
+        if (verification.email_verified) {
+          setEmailVerificationStep('verified');
         }
+      }
+
+      if (verification?.verification_status === 'approved') {
+        const { data: dashboardData, error: dashboardError } = await supabase.rpc('get_community_dashboard', {
+          p_status: 'all',
+          p_category: 'all',
+          p_limit: 500,
+          p_offset: 0,
+        });
+        if (dashboardError) throw dashboardError;
+
+        const fetchedMembers = (dashboardData?.members || []) as CommunityMember[];
+        const fetchedTasks = (dashboardData?.tasks || []) as CommunityTask[];
+
+        setMembers(fetchedMembers);
+        setTasks(fetchedTasks);
+        const uniqueCats = Array.from(new Set(fetchedTasks.map(t => t.category).filter(Boolean)));
+        setCategories(uniqueCats as string[]);
+      } else {
+        setMembers([]);
+        setTasks([]);
+        setCategories([]);
       }
 
     } catch (error) {
@@ -502,6 +429,11 @@ export default function CommunityPage() {
       toast.error("Please enter your email address");
       return;
     }
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      toast.error("Please log in again to verify your email.");
+      return;
+    }
 
     setSendingCode(true);
     try {
@@ -509,6 +441,7 @@ export default function CommunityPage() {
 
       // Using the correct function name: 'send-email-verification'
       const { data, error } = await supabase.functions.invoke('send-email-verification', {
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           email: verificationForm.email,
           userId: user?.id,
@@ -516,15 +449,7 @@ export default function CommunityPage() {
         }
       });
 
-      if (error) {
-        // Fallback for any error to enable DEMO MODE during development/demoing
-        console.warn("Edge function error. Enabling DEMO MODE for verification.");
-        toast.info("Backend is being configured. Using Demo Mode.");
-        toast.success("DEMO MODE: Use code '123456' to proceed.");
-        setEmailVerificationStep('sent');
-        setResendCooldown(60);
-        return;
-      }
+      if (error) throw error;
 
       setEmailVerificationStep('sent');
       setResendCooldown(60);
@@ -532,12 +457,7 @@ export default function CommunityPage() {
       toast.success("Verification code sent to " + verificationForm.email);
     } catch (err: any) {
       console.error('Error sending code:', err);
-      // Failsafe: also trigger demo mode on catch
-      console.warn("Catch block error. Triggering DEMO MODE.");
-      toast.info("Using Demo Mode (Backend busy or unconfigured).");
-      toast.success("DEMO MODE: Use code '123456' to proceed.");
-      setEmailVerificationStep('sent');
-      setResendCooldown(60);
+      toast.error(err?.message || "Failed to send verification code");
     } finally {
       setSendingCode(false);
     }
@@ -545,18 +465,16 @@ export default function CommunityPage() {
 
   const handleVerifyCode = async () => {
     if (otpCode.length !== 6) return;
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      toast.error("Please log in again to verify your email.");
+      return;
+    }
     setVerifyingCode(true);
     try {
-      // Demo mode support
-      if (otpCode === '123456') {
-        console.warn("CommunityPage: Using DEMO MODE for verification.");
-        setEmailVerificationStep('verified');
-        toast.success("Email verified (Demo Mode)!");
-        return;
-      }
-
       // Using the correct function name: 'verify-email-code'
       const { data, error } = await supabase.functions.invoke('verify-email-code', {
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           email: verificationForm.email,
           code: otpCode,
@@ -629,10 +547,7 @@ export default function CommunityPage() {
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('student-id-cards')
-          .getPublicUrl(fileName);
-        idCardUrl = publicUrl;
+        idCardUrl = fileName;
       }
 
       // 1. Update User Profile with the names and phone provided
@@ -653,23 +568,22 @@ export default function CommunityPage() {
       const collegeName = manualCollegeMode ? verificationForm.manualUniversity : colleges.find(c => c.id === selectedCollegeId)?.name || 'Your University';
 
       const isFeaturedCollege = selectedCollegeId?.startsWith('f');
-      const { error: upsertError } = await supabase
-        .from('student_verifications')
-        .upsert({
-          user_id: user?.id,
-          college_id: isFeaturedCollege ? null : (selectedCollegeId || null),
-          institute_name: manualCollegeMode
-            ? verificationForm.manualUniversity
-            : (isFeaturedCollege ? collegeName : null),
-          institute_email: verificationForm.email,
-          enrollment_id: verificationForm.enrollmentNumber,
-          id_card_url: idCardUrl,
-          verification_status: 'pending',
-          email_verified: emailVerificationStep === 'verified',
-          updated_at: new Date().toISOString()
-        });
+      const { error: submitError } = await supabase.rpc('upsert_student_verification_submission', {
+        p_first_name: verificationForm.firstName,
+        p_last_name: verificationForm.lastName,
+        p_phone: verificationForm.phone,
+        p_institute_email: verificationForm.email,
+        p_enrollment_id: verificationForm.enrollmentNumber || null,
+        p_college_id: isFeaturedCollege ? null : (selectedCollegeId || null),
+        p_institute_name: manualCollegeMode
+          ? verificationForm.manualUniversity
+          : (isFeaturedCollege ? collegeName : null),
+        p_id_card_url: idCardUrl || null,
+        p_email_verified: emailVerificationStep === 'verified',
+        p_verification_method: emailVerificationStep === 'verified' ? 'email' : 'id_card',
+      });
 
-      if (upsertError) throw upsertError;
+      if (submitError) throw submitError;
 
       const mockCollege: College = {
         id: selectedCollegeId || 'manual-1',
@@ -761,13 +675,10 @@ export default function CommunityPage() {
   const handleSaveSettings = async () => {
     try {
       setIsVerifying(true);
-      const { error } = await supabase
-        .from('student_verifications')
-        .update({
-          institute_email: verificationForm.email,
-          enrollment_id: verificationForm.enrollmentNumber
-        })
-        .eq('user_id', user?.id);
+      const { error } = await supabase.rpc('update_community_member_settings', {
+        p_institute_email: verificationForm.email || null,
+        p_enrollment_id: verificationForm.enrollmentNumber || null,
+      });
 
       if (error) throw error;
       toast.success("Settings updated successfully!");
@@ -784,25 +695,6 @@ export default function CommunityPage() {
   if (verificationPending) {
     return (
       <main className="flex-1 p-8 flex flex-col items-center justify-center min-h-[80vh] bg-slate-50 gap-6">
-        {window.location.hostname === 'localhost' && (
-          <Button
-            onClick={async () => {
-              const { error } = await supabase.from('student_verifications').update({
-                verification_status: 'approved',
-                email_verified: true,
-                verified_at: new Date().toISOString()
-              }).eq('user_id', user?.id);
-              if (!error) {
-                toast.success("DEV: Verification Approved! Reloading...");
-                setTimeout(() => window.location.reload(), 1500);
-              }
-            }}
-            variant="outline"
-            className="border-dashed border-primary text-primary font-black animate-pulse"
-          >
-            DEV TOOL: INSTANT APPROVE (Local Only)
-          </Button>
-        )}
         <div className="max-w-md w-full text-center space-y-8 bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100">
           <div className="size-24 bg-[#7e63f8]/10 rounded-full flex items-center justify-center mx-auto relative">
             <Clock className="size-12 text-[#7e63f8] animate-spin" />
@@ -828,25 +720,6 @@ export default function CommunityPage() {
     if (verificationStatus === 'pending' || verificationPending) {
       return (
         <main className="flex-1 py-12 px-4 md:px-8 bg-[#fdfdfd] flex flex-col justify-center min-h-screen items-center gap-6">
-          {window.location.hostname === 'localhost' && (
-            <Button
-              onClick={async () => {
-                const { error } = await supabase.from('student_verifications').update({
-                  verification_status: 'approved',
-                  email_verified: true,
-                  verified_at: new Date().toISOString()
-                }).eq('user_id', user?.id);
-                if (!error) {
-                  toast.success("DEV: Verification Approved! Reloading...");
-                  setTimeout(() => window.location.reload(), 1500);
-                }
-              }}
-              variant="outline"
-              className="border-dashed border-primary text-primary font-black animate-pulse"
-            >
-              DEV TOOL: INSTANT APPROVE (Local Only)
-            </Button>
-          )}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1471,7 +1344,7 @@ export default function CommunityPage() {
                 >
                   {/* Task Creation Box */}
                   <Card className="p-1 min-h-[64px] rounded-2xl border-2 border-slate-200 focus-within:border-[#7e63f8]/50 shadow-sm overflow-hidden flex items-center gap-3 bg-white">
-                    <div className="flex-1 flex items-center gap-3 px-5 py-3 cursor-text" onClick={() => navigate('/projects/post-project', { state: { is_community: true, college_id: getCommunityUUID(userCollege?.id || userCollege?.name || null) } })}>
+                    <div className="flex-1 flex items-center gap-3 px-5 py-3 cursor-text" onClick={() => navigate('/projects/post-project', { state: { is_community: true, college_id: getCommunityUUID(userCollege?.id || userCollege?.name || null), college_name: userCollege?.name || null } })}>
                       <Avatar className="size-8">
                         <AvatarImage src={user?.user_metadata?.avatar_url} />
                         <AvatarFallback className="bg-[#7e63f8] text-white text-[10px]">YOU</AvatarFallback>
@@ -1488,7 +1361,7 @@ export default function CommunityPage() {
                       Tags
                     </Button>
                     <Button
-                      onClick={() => navigate('/projects/post-project', { state: { is_community: true, college_id: getCommunityUUID(userCollege?.id || userCollege?.name || null) } })}
+                      onClick={() => navigate('/projects/post-project', { state: { is_community: true, college_id: getCommunityUUID(userCollege?.id || userCollege?.name || null), college_name: userCollege?.name || null } })}
                       className="bg-[#7e63f8] hover:bg-[#6c52e6] text-white rounded-xl px-6 font-bold m-1"
                     >
                       POST
