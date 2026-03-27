@@ -508,21 +508,35 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "p-0 gap-0 overflow-hidden bg-background",
-          isMediumSize ? "max-w-4xl max-h-[88vh]" : "max-w-5xl max-h-[90vh]"
+          "p-0 gap-0 overflow-hidden bg-background overflow-x-hidden",
+          // Mobile: anchor below top safe area; avoid vertical centering that clips tall content
+          "left-4 right-4 top-4 translate-x-0 translate-y-0 w-[calc(100vw-2rem)] max-w-none",
+          "max-h-[min(92dvh,calc(100svh-2rem))] sm:left-[50%] sm:right-auto sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-h-[90vh]",
+          isMediumSize ? "sm:max-w-4xl" : "sm:max-w-5xl"
         )}
       >
-        <div className={cn("flex", isMediumSize ? "h-[80vh]" : "h-[85vh]")}>
-          {/* Sidebar Navigation */}
-          <div className={cn("bg-muted/30 border-r border-border flex flex-col shrink-0", isMediumSize ? "w-52" : "w-56")}>
+        <div
+          className={cn(
+            "flex flex-col md:flex-row min-h-0",
+            isMediumSize ? "h-[min(86dvh,calc(100svh-4rem))] md:h-[80vh]" : "h-[min(86dvh,calc(100svh-4rem))] md:h-[85vh]"
+          )}
+        >
+          {/* Sidebar Navigation — full width + horizontal feel on mobile; column on md+ */}
+          <div
+            className={cn(
+              "bg-muted/30 border-border flex flex-col shrink-0",
+              "w-full max-md:max-h-[min(40vh,240px)] max-md:border-b md:border-b-0 md:border-r",
+              isMediumSize ? "md:w-52" : "md:w-56"
+            )}
+          >
             {/* THEUNOiA Logo */}
-            <div className="p-4 border-b border-border flex items-center justify-center">
-              <img src="/images/theunoia-logo.png" alt="THEUNOiA" className="h-10 object-contain" />
+            <div className="p-3 sm:p-4 border-b border-border flex items-center justify-center">
+              <img src="/images/theunoia-logo.png" alt="THEUNOiA" className="h-9 sm:h-10 object-contain" />
             </div>
             
             {/* Navigation Items */}
-            <ScrollArea className="flex-1 py-2">
-              <nav className="space-y-1 px-2">
+            <ScrollArea className="flex-1 min-h-0 py-2">
+              <nav className="space-y-1 px-2 pb-2">
                 {sections.map((section, index) => {
                   const isAccepted = isTermsSectionBySection && acceptedUpTo >= index;
                   const isLocked = isTermsSectionBySection && index > acceptedUpTo + 1;
@@ -533,16 +547,16 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
                       disabled={isLocked}
                       onClick={() => scrollToSection(index)}
                       className={cn(
-                        "w-full flex items-start gap-3 px-2 py-2.5 text-left rounded-lg transition-all",
+                        "w-full flex items-start gap-2 sm:gap-3 px-2 py-2 sm:py-2.5 text-left rounded-lg transition-all",
                         activeSection === index
                           ? "bg-primary/10"
-                          : !isLocked && "hover:bg-muted/50",
+                          : !isLocked && "hover:bg-muted/50 active:bg-muted/60",
                         isLocked && "cursor-not-allowed opacity-50 pointer-events-none"
                       )}
                     >
-                      <div className="relative flex items-center">
+                      <div className="relative flex items-center shrink-0">
                         {activeSection === index && (
-                          <div className="absolute -left-4 top-0 bottom-0 w-1 bg-primary rounded-r" />
+                          <div className="absolute -left-2 sm:-left-4 top-0 bottom-0 w-1 bg-primary rounded-r hidden sm:block" />
                         )}
                         <span className={cn(
                           "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-medium shrink-0",
@@ -556,7 +570,7 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
                         </span>
                       </div>
                       <span className={cn(
-                        "text-sm leading-tight pt-1",
+                        "text-xs sm:text-sm leading-snug sm:leading-tight pt-0.5 sm:pt-1 break-words min-w-0",
                         activeSection === index
                           ? "text-foreground font-medium"
                           : "text-muted-foreground"
@@ -571,11 +585,13 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
             {/* Header */}
-            <div className="px-8 py-6 border-b border-border">
-              <h1 className="text-2xl font-bold text-secondary">{title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
+            <div className="px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 border-b border-border shrink-0">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-secondary leading-tight pr-8">
+                {title}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 break-words">
                 EFFECTIVE DATE: {effectiveDate.toUpperCase()}
               </p>
             </div>
@@ -584,7 +600,7 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
             <div
               ref={scrollContainerRef}
               className={cn(
-                "flex-1 overflow-y-auto px-8 py-6 min-h-0",
+                "flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 min-h-0 overscroll-contain",
                 isTermsSectionBySection && "flex flex-col"
               )}
             >
@@ -593,21 +609,21 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
                   const section = sections[activeSection];
                   if (!section) return null;
                   return (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <span className="text-lg font-semibold text-secondary">
+                    <div className="mb-6 sm:mb-8">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-4">
+                        <span className="text-base sm:text-lg font-semibold text-secondary shrink-0">
                           {section.number.padStart(2, '0')}.
                         </span>
-                        <h2 className="text-lg font-semibold text-foreground">
+                        <h2 className="text-base sm:text-lg font-semibold text-foreground leading-snug flex-1 min-w-0">
                           {section.title}
                         </h2>
-                        <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 via-accent/30 to-transparent" />
+                        <div className="hidden sm:block flex-1 h-px min-w-[2rem] bg-gradient-to-r from-secondary/30 via-accent/30 to-transparent" />
                       </div>
-                      <div className="space-y-4 pl-10">
+                      <div className="space-y-3 sm:space-y-4 pl-0 sm:pl-6 md:pl-10">
                         {section.content.map((paragraph, pIndex) => (
                           <p
                             key={pIndex}
-                            className="text-muted-foreground leading-relaxed whitespace-pre-line"
+                            className="text-muted-foreground text-sm sm:text-base leading-relaxed whitespace-pre-line break-words"
                           >
                             {paragraph.split('**').map((part, i) =>
                               i % 2 === 1 ? (
@@ -627,22 +643,22 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
                   <div
                     key={section.id}
                     ref={(el) => (sectionRefs.current[index] = el)}
-                    className="mb-12"
+                    className="mb-8 sm:mb-12"
                   >
-                    <div className="flex items-center gap-4 mb-4">
-                      <span className="text-lg font-semibold text-secondary">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-4">
+                      <span className="text-base sm:text-lg font-semibold text-secondary shrink-0">
                         {section.number.padStart(2, '0')}.
                       </span>
-                      <h2 className="text-lg font-semibold text-foreground">
+                      <h2 className="text-base sm:text-lg font-semibold text-foreground leading-snug flex-1 min-w-0">
                         {section.title}
                       </h2>
-                      <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 via-accent/30 to-transparent" />
+                      <div className="hidden sm:block flex-1 h-px min-w-[2rem] bg-gradient-to-r from-secondary/30 via-accent/30 to-transparent" />
                     </div>
-                    <div className="space-y-4 pl-10">
+                    <div className="space-y-3 sm:space-y-4 pl-0 sm:pl-6 md:pl-10">
                       {section.content.map((paragraph, pIndex) => (
                         <p
                           key={pIndex}
-                          className="text-muted-foreground leading-relaxed whitespace-pre-line"
+                          className="text-muted-foreground text-sm sm:text-base leading-relaxed whitespace-pre-line break-words"
                         >
                           {paragraph.split('**').map((part, i) =>
                             i % 2 === 1 ? (
@@ -665,23 +681,23 @@ export function AgreementDialog({ open, onOpenChange, type, onAccept, showAccept
             </div>
 
             {/* Footer */}
-            <div className="px-8 py-4 border-t border-border bg-muted/20 flex items-center justify-end">
+            <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4 md:px-8 border-t border-border bg-muted/20 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end shrink-0">
               {isTermsSectionBySection ? (
                 <Button
                   onClick={handleAcceptCurrentSection}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold w-full sm:w-auto sm:px-8 min-h-11 touch-manipulation"
                 >
                   Accept agreement
                 </Button>
               ) : showAcceptButton ? (
                 <Button 
                   onClick={handleAccept}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold w-full sm:w-auto sm:px-8 min-h-11 touch-manipulation"
                 >
                   ACCEPT AGREEMENT
                 </Button>
               ) : (
-                <Button onClick={() => onOpenChange(false)} variant="outline">
+                <Button onClick={() => onOpenChange(false)} variant="outline" className="w-full sm:w-auto min-h-11 touch-manipulation">
                   Close
                 </Button>
               )}
