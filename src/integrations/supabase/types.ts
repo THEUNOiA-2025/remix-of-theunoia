@@ -511,6 +511,7 @@ export type Database = {
           created_at: string | null
           currency: string
           id: string
+          metadata: Json | null
           project_id: string
           razorpay_order_id: string | null
           razorpay_payment_id: string | null
@@ -522,6 +523,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          metadata?: Json | null
           project_id: string
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
@@ -533,6 +535,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          metadata?: Json | null
           project_id?: string
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
