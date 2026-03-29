@@ -20,9 +20,9 @@ serve(async (req) => {
             throw new Error("Project ID and Amount are required");
         }
 
-        // Initialize Supabase client
-        const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+        // Initialize Supabase client (fallback to VITE_ prefixed vars)
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         let clientId = null;
