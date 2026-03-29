@@ -25,16 +25,42 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+        let clientId = null;
+        let freelancerId = null;
+
         // Fetch project details to verify existence (only if projectId is provided)
         if (projectId) {
             const { data: project, error: projectError } = await supabase
                 .from("user_projects")
-                .select("id")
+                .select("id, user_id")
                 .eq("id", projectId)
                 .single();
 
             if (projectError || !project) {
                 throw new Error("Project not found");
+            }
+            clientId = project.user_id;
+
+            if (bidId) {
+                const { data: bid } = await supabase.from("bids").select("freelancer_id").eq("id", bidId).single();
+                if (bid) freelancerId = bid.freelancer_id;
+            } else {
+                const { data: acceptedBid } = await supabase.from("bids").select("freelancer_id").eq("project_id", projectId).eq("status", "accepted").single();
+                if (acceptedBid) freelancerId = acceptedBid.freelancer_id;
+            }
+        }
+
+        // Calculate GST dynamically
+        let subtotal = Number(amount);
+        let gstAmount = 0;
+        let totalAmount = subtotal;
+
+        if (freelancerId) {
+            const { data: freelancer } = await supabase.from("user_profiles").select("gstin").eq("user_id", freelancerId).single();
+            if (freelancer && freelancer.gstin && freelancer.gstin.trim() !== '') {
+                // Freelancer holds a valid GSTIN; add 18% GST to the phase amount
+                gstAmount = Number((subtotal * 0.18).toFixed(2));
+                totalAmount = Number((subtotal + gstAmount).toFixed(2));
             }
         }
 
@@ -45,7 +71,7 @@ serve(async (req) => {
             key_secret: Deno.env.get("RAZORPAY_KEY_SECRET") ?? "",
         });
 
-        const amountInPaise = Math.round(parseFloat(Number(amount).toFixed(2)) * 100); // Razorpay strictly expects an integer in paise
+        const amountInPaise = Math.round(parseFloat(Number(totalAmount).toFixed(2)) * 100);
         const currency = "INR";
 
         // Receipt length must not exceed 40 characters
@@ -75,7 +101,7 @@ serve(async (req) => {
             .from("payments")
             .insert({
                 project_id: projectId,
-                amount: amount, // Use the amount passed in the request
+                amount: totalAmount, // Use the total amount with GST
                 currency: currency,
                 status: "pending",
                 razorpay_order_id: order.id,
@@ -89,6 +115,32 @@ serve(async (req) => {
         if (paymentError) {
             console.error("Error creating payment record:", paymentError);
             throw new Error("Failed to create payment record");
+        }
+
+        // Generate a Pending Invoice
+        const invoiceNumber = `INV-${Date.now()}`;
+        if (clientId && freelancerId) {
+            const { error: invoiceError } = await supabase
+                .from("invoices")
+                .insert({
+                    project_id: projectId,
+                    client_id: clientId,
+                    freelancer_id: freelancerId,
+                    amount: totalAmount,
+                    currency: currency,
+                    status: "pending",
+                    invoice_number: invoiceNumber,
+                    invoice_type: paymentType === 'advance' ? 'advance_payment' : 'phase_payment',
+                    phase_id: phaseId || null,
+                    subtotal_amount: subtotal,
+                    gst_amount: gstAmount,
+                    total_amount: totalAmount
+                });
+            
+            if (invoiceError) {
+                console.error("Error generating pending invoice:", invoiceError);
+                // Do not throw, allow order to proceed even if invoice generation fails non-critically
+            }
         }
 
         return new Response(
