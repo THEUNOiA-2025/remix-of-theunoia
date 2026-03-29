@@ -1,12 +1,28 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createHmac } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function verifySignature(key_secret: string, razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<boolean> {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(key_secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+    const data = encoder.encode(razorpay_order_id + "|" + razorpay_payment_id);
+    const signature = await crypto.subtle.sign("HMAC", key, data);
+    const generated = Array.from(new Uint8Array(signature))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    return generated === razorpay_signature;
+}
 
 serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -31,13 +47,9 @@ serve(async (req) => {
 
         const key_secret = Deno.env.get("RAZORPAY_KEY_SECRET") ?? "";
 
-        // Verify signature
-        const text = razorpay_order_id + "|" + razorpay_payment_id;
-        const hmac = createHmac("sha256", new TextEncoder().encode(key_secret));
-        hmac.update(new TextEncoder().encode(text));
-        const generated_signature = hmac.toString();
-
-        if (generated_signature !== razorpay_signature) {
+        // Verify signature using Web Crypto API
+        const isValid = await verifySignature(key_secret, razorpay_order_id, razorpay_payment_id, razorpay_signature);
+        if (!isValid) {
             throw new Error("Invalid payment signature");
         }
 
