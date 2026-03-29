@@ -198,10 +198,11 @@ const StudentVerificationPage = () => {
       if (verificationRow) {
         setVerification(verificationRow);
         setSelectedCollege(verificationRow.college_id || "");
-        setFormData({
+        setFormData(prev => ({
+          ...prev,
           instituteEmail: verificationRow.institute_email || "",
           enrollmentId: verificationRow.enrollment_id || "",
-        });
+        }));
 
         // Check if email is already verified
         if (verificationRow.email_verified) {
