@@ -170,6 +170,18 @@ serve(async (req) => {
                         .update({ payment_status: 'paid' })
                         .in("id", phaseIdsToMark);
                 }
+
+                // Update Advance Payment Invoice to Paid
+                const { error: invoiceUpdateError } = await supabase
+                    .from("invoices")
+                    .update({ status: 'paid' })
+                    .eq("project_id", projectId)
+                    .eq("invoice_type", "advance_payment")
+                    .eq("status", "pending");
+                    
+                if (invoiceUpdateError) {
+                    console.error("Error setting advance invoice to paid:", invoiceUpdateError);
+                }
             } else if (paymentType === 'phase') {
                 const { phaseId } = body;
                 console.log(`Processing phase payment for phase ${phaseId}...`);
@@ -182,6 +194,18 @@ serve(async (req) => {
                 if (phaseError) {
                     console.error("Error updating phase payment status:", phaseError);
                     throw new Error("Payment verified but failed to update phase status");
+                }
+
+                // Update Phase Payment Invoice to Paid
+                const { error: invoiceUpdateError } = await supabase
+                    .from("invoices")
+                    .update({ status: 'paid' })
+                    .eq("project_id", projectId)
+                    .eq("phase_id", phaseId)
+                    .eq("status", "pending");
+                    
+                if (invoiceUpdateError) {
+                    console.error("Error setting phase invoice to paid:", invoiceUpdateError);
                 }
             } else {
                 // Legacy / Default logic: Completion payment (Project Status Update only)
