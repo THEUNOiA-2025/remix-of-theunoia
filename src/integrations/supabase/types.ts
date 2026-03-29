@@ -453,6 +453,36 @@ export type Database = {
           },
         ]
       }
+      otp_verifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          otp: string
+          phone: string
+          updated_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          otp: string
+          phone: string
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          otp?: string
+          phone?: string
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -1145,6 +1175,7 @@ export type Database = {
         Args: { _required_credits?: number; _user_id: string }
         Returns: boolean
       }
+      is_signup_email_taken: { Args: { p_email: string }; Returns: boolean }
       normalize_community_name: {
         Args: { input_name: string }
         Returns: string
