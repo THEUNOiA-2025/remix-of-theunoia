@@ -742,9 +742,9 @@ const DashboardPage = () => {
                       <FileText className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-bold text-[#121118] dark:text-white text-sm">
+                      <Link to={`/invoices/${invoice.id}`} className="font-bold text-primary hover:underline text-sm block">
                         {invoice.invoice_number}
-                      </p>
+                      </Link>
                       <p className="text-[10px] text-[#68608a]">
                         {format(new Date(invoice.created_at), 'MMM d, yyyy')}
                       </p>

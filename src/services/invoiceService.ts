@@ -11,6 +11,11 @@ export interface Invoice {
     due_date: string | null;
     created_at: string;
     invoice_number: string;
+    invoice_type?: 'phase_payment' | 'advance_payment';
+    phase_id?: string | null;
+    subtotal_amount?: number;
+    gst_amount?: number;
+    total_amount?: number;
     project?: {
         title: string;
     };

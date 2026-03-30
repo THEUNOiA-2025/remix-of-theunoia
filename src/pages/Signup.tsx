@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileText, ChevronRight, ChevronLeft, Check, Loader2, Eye, EyeOff } from 'lucide-react';
 import { AgreementDialog } from '@/components/AgreementDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 // ============================================
 // SHARED & FREELANCER SCHEMAS
@@ -155,7 +156,11 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState('');
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false); // Simulate OTP
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [dob, setDob] = useState(''); // Student only
 
   // Client Step 2: Client Type
@@ -356,12 +361,52 @@ const Signup = () => {
     }
   };
 
-  const verifyPhone = () => {
-    if (phone.length >= 10) {
+  const handleSendOtp = async () => {
+    if (phone.length < 10) {
+      toast({ title: 'Error', description: 'Please enter a valid 10-digit mobile number', variant: 'destructive' });
+      return;
+    }
+    setIsSendingOtp(true);
+    try {
+      // Send +91 by default if they just enter 10 digits
+      const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+      
+      const { data, error } = await supabase.functions.invoke('send-phone-otp', {
+        body: { phone: formattedPhone }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setOtpSent(true);
+      toast({ title: 'Success', description: 'OTP sent to your mobile number (Simulated in Server Logs for now)' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Failed to send OTP', variant: 'destructive' });
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpInput.length < 6) return;
+    setIsVerifyingOtp(true);
+    try {
+      const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+
+      const { data, error } = await supabase.functions.invoke('verify-phone-otp', {
+        body: { phone: formattedPhone, otp: otpInput }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setIsPhoneVerified(true);
+      setOtpSent(false);
       toast({ title: 'Success', description: 'Mobile number verified successfully' });
-    } else {
-      toast({ title: 'Error', description: 'Please enter a valid mobile number first', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'Invalid or expired OTP', variant: 'destructive' });
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -416,15 +461,56 @@ const Signup = () => {
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="phone">Mobile Number</Label>
-        <div className="flex gap-2">
-          <Input id="phone" type="tel" placeholder="10-digit mobile number" value={phone} onChange={e => { setPhone(e.target.value); setIsPhoneVerified(false); }} />
-          <Button type="button" variant={isPhoneVerified ? "outline" : "secondary"} onClick={verifyPhone} disabled={isPhoneVerified}>
-            {isPhoneVerified ? <Check className="h-4 w-4 text-green-500 mr-2" /> : null}
-            {isPhoneVerified ? 'Verified' : 'Verify OTP'}
-          </Button>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="phone">Mobile Number</Label>
+          <div className="flex gap-2">
+            <Input 
+              id="phone" 
+              type="tel" 
+              placeholder="10-digit mobile number" 
+              value={phone} 
+              onChange={e => { 
+                setPhone(e.target.value); 
+                setIsPhoneVerified(false); 
+                setOtpSent(false); 
+              }} 
+              disabled={isPhoneVerified}
+            />
+            {!isPhoneVerified && (
+              <Button type="button" variant="outline" onClick={handleSendOtp} disabled={isSendingOtp || isPhoneVerified || phone.length < 10}>
+                {isSendingOtp ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {otpSent ? 'Resend OTP' : 'Send OTP'}
+              </Button>
+            )}
+          </div>
         </div>
+
+        {otpSent && !isPhoneVerified && (
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <Label htmlFor="otp">Enter 6-digit OTP</Label>
+            <div className="flex gap-2">
+              <Input 
+                id="otp" 
+                type="text" 
+                placeholder="000000" 
+                maxLength={6} 
+                value={otpInput} 
+                onChange={e => setOtpInput(e.target.value.replace(/\D/g, ''))} 
+              />
+              <Button type="button" variant="default" onClick={handleVerifyOtp} disabled={isVerifyingOtp || otpInput.length < 6}>
+                {isVerifyingOtp ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Verify
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {isPhoneVerified && (
+          <div className="flex items-center text-sm font-medium text-green-600 bg-green-50 p-2 rounded-md">
+            <Check className="h-4 w-4 mr-2" /> Mobile number verified
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

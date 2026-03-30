@@ -1,12 +1,28 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createHmac } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function verifySignature(key_secret: string, razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<boolean> {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(key_secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+    const data = encoder.encode(razorpay_order_id + "|" + razorpay_payment_id);
+    const signature = await crypto.subtle.sign("HMAC", key, data);
+    const generated = Array.from(new Uint8Array(signature))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    return generated === razorpay_signature;
+}
 
 serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -19,9 +35,6 @@ serve(async (req) => {
             razorpay_order_id,
             razorpay_payment_id,
             razorpay_signature,
-            projectId,
-            paymentType,
-            bidId,
             phaseNames
         } = body;
 
@@ -31,34 +44,75 @@ serve(async (req) => {
 
         const key_secret = Deno.env.get("RAZORPAY_KEY_SECRET") ?? "";
 
-        // Verify signature
-        const text = razorpay_order_id + "|" + razorpay_payment_id;
-        const hmac = createHmac("sha256", new TextEncoder().encode(key_secret));
-        hmac.update(new TextEncoder().encode(text));
-        const generated_signature = hmac.toString();
-
-        if (generated_signature !== razorpay_signature) {
+        // Verify signature using Web Crypto API
+        const isValid = await verifySignature(key_secret, razorpay_order_id, razorpay_payment_id, razorpay_signature);
+        if (!isValid) {
             throw new Error("Invalid payment signature");
         }
 
-        // Initialize Supabase client
-        const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+        // Initialize Supabase client (fallback to VITE_ prefixed vars)
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // 1. Log payment record securely
+        // 1. Fetch genuine metadata from our secure database instead of trusting client payload
+        const { data: validPayment, error: queryError } = await supabase
+            .from("payments")
+            .select("project_id, amount, metadata")
+            .eq("razorpay_order_id", razorpay_order_id)
+            .single();
+
+        if (queryError || !validPayment) {
+            throw new Error("Payment record not found in system");
+        }
+
+        const projectId = validPayment.project_id;
+        const paymentMetadata = validPayment.metadata || {};
+        const paymentType = paymentMetadata.paymentType;
+        const bidId = paymentMetadata.bidId;
+        const phaseId = paymentMetadata.phaseId;
+        const subtotal = paymentMetadata.subtotal || validPayment.amount;
+        const gstAmount = paymentMetadata.gstAmount || 0;
+        const clientId = paymentMetadata.clientId;
+        const freelancerId = paymentMetadata.freelancerId;
+
+        // 2. Mark payment as captured securely
         const { error: paymentError } = await supabase
             .from("payments")
-            .upsert({
-                razorpay_order_id: razorpay_order_id,
+            .update({
                 razorpay_payment_id: razorpay_payment_id,
-                project_id: projectId,
                 status: "captured",
                 updated_at: new Date().toISOString(),
-            }, { onConflict: 'razorpay_order_id' });
+            })
+            .eq("razorpay_order_id", razorpay_order_id);
 
         if (paymentError) {
             console.error("Error logging payment record:", paymentError);
+        }
+
+        // 3. Create the Paid Invoice directly (no more pending invoices)
+        if (clientId && freelancerId) {
+            const invoiceNumber = `INV-${Date.now()}`;
+            const { error: invoiceCreateError } = await supabase
+                .from("invoices")
+                .insert({
+                    project_id: projectId,
+                    client_id: clientId,
+                    freelancer_id: freelancerId,
+                    amount: validPayment.amount,
+                    currency: "INR",
+                    status: "paid", // Instant Paid Status
+                    invoice_number: invoiceNumber,
+                    invoice_type: paymentType === 'advance' ? 'advance_payment' : 'phase_payment',
+                    phase_id: phaseId || null,
+                    subtotal_amount: subtotal,
+                    gst_amount: gstAmount,
+                    total_amount: validPayment.amount
+                });
+            
+            if (invoiceCreateError) {
+                console.error("Failed to generate paid invoice:", invoiceCreateError);
+            }
         }
 
         // 2. Automate Project Status and Bid Acceptance!
@@ -170,8 +224,9 @@ serve(async (req) => {
                         .update({ payment_status: 'paid' })
                         .in("id", phaseIdsToMark);
                 }
+
+                // Legacy pending invoice update has been moved to direct generation on line 94
             } else if (paymentType === 'phase') {
-                const { phaseId } = body;
                 console.log(`Processing phase payment for phase ${phaseId}...`);
 
                 const { error: phaseError } = await supabase
@@ -183,6 +238,8 @@ serve(async (req) => {
                     console.error("Error updating phase payment status:", phaseError);
                     throw new Error("Payment verified but failed to update phase status");
                 }
+
+                // Legacy pending invoice update has been moved to direct generation on line 94
             } else {
                 // Legacy / Default logic: Completion payment (Project Status Update only)
                 console.log(`Marking project ${projectId} as completed after payment verification...`);

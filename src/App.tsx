@@ -60,6 +60,8 @@ const NewFeaturesPage = lazy(() => import("./pages/landing-page/FeaturesPage"));
 
 // Client: view freelancer dashboard
 const FreelancerViewPage = lazy(() => import("./pages/client/freelancer/FreelancerViewPage"));
+// Client: invoices
+const InvoiceView = lazy(() => import("./pages/client/invoices/InvoiceView"));
 // Client: post new project
 const PostProjectPage = lazy(() => import("./pages/client/projects/PostProjectPage"));
 
@@ -280,6 +282,13 @@ const App = () => (
                   </Suspense>
                 } />
               </Route>
+
+              {/* Standalone invoice view route */}
+              <Route path="/invoices/:id" element={
+                <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                  <InvoiceView />
+                </Suspense>
+              } />
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
