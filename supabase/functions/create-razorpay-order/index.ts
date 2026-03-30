@@ -150,6 +150,10 @@ serve(async (req) => {
                         paymentType: paymentType || null,
                         bidId: bidId || null,
                         phaseId: phaseId || null,
+                        subtotal: subtotal,
+                        gstAmount: gstAmount,
+                        clientId: clientId,
+                        freelancerId: freelancerId
                     }
                 });
 
@@ -158,48 +162,7 @@ serve(async (req) => {
                 throw new Error("Failed to create payment record");
             }
 
-            // Generate a Pending Invoice
-            const invoiceNumber = `INV-${Date.now()}`;
-            if (clientId && freelancerId) {
-                // Double check it doesn't already exist to be completely safe
-                const invoiceType = paymentType === 'advance' ? 'advance_payment' : 'phase_payment';
-                let invoiceQuery = supabase
-                    .from("invoices")
-                    .select("id")
-                    .eq("project_id", projectId)
-                    .eq("invoice_type", invoiceType)
-                    .eq("status", "pending");
-
-                if (invoiceType === 'phase_payment' && phaseId) {
-                    invoiceQuery = invoiceQuery.eq("phase_id", phaseId);
-                }
-
-                const { data: existingInvoices } = await invoiceQuery;
-
-                if (!existingInvoices || existingInvoices.length === 0) {
-                    const { error: invoiceError } = await supabase
-                        .from("invoices")
-                        .insert({
-                            project_id: projectId,
-                            client_id: clientId,
-                            freelancer_id: freelancerId,
-                            amount: totalAmount,
-                            currency: currency,
-                            status: "pending",
-                            invoice_number: invoiceNumber,
-                            invoice_type: invoiceType,
-                            phase_id: phaseId || null,
-                            subtotal_amount: subtotal,
-                            gst_amount: gstAmount,
-                            total_amount: totalAmount
-                        });
-
-                    if (invoiceError) {
-                        console.error("Error generating pending invoice:", invoiceError);
-                        // Do not throw, allow order to proceed even if invoice generation fails non-critically
-                    }
-                }
-            }
+            // Invoices are no longer created here. They are generated only upon successful payment verification.
         }
 
         return new Response(
