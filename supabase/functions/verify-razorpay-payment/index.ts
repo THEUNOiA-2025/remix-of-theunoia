@@ -35,9 +35,6 @@ serve(async (req) => {
             razorpay_order_id,
             razorpay_payment_id,
             razorpay_signature,
-            projectId,
-            paymentType,
-            bidId,
             phaseNames
         } = body;
 
@@ -58,19 +55,64 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // 1. Log payment record securely
+        // 1. Fetch genuine metadata from our secure database instead of trusting client payload
+        const { data: validPayment, error: queryError } = await supabase
+            .from("payments")
+            .select("project_id, amount, metadata")
+            .eq("razorpay_order_id", razorpay_order_id)
+            .single();
+
+        if (queryError || !validPayment) {
+            throw new Error("Payment record not found in system");
+        }
+
+        const projectId = validPayment.project_id;
+        const paymentMetadata = validPayment.metadata || {};
+        const paymentType = paymentMetadata.paymentType;
+        const bidId = paymentMetadata.bidId;
+        const phaseId = paymentMetadata.phaseId;
+        const subtotal = paymentMetadata.subtotal || validPayment.amount;
+        const gstAmount = paymentMetadata.gstAmount || 0;
+        const clientId = paymentMetadata.clientId;
+        const freelancerId = paymentMetadata.freelancerId;
+
+        // 2. Mark payment as captured securely
         const { error: paymentError } = await supabase
             .from("payments")
-            .upsert({
-                razorpay_order_id: razorpay_order_id,
+            .update({
                 razorpay_payment_id: razorpay_payment_id,
-                project_id: projectId,
                 status: "captured",
                 updated_at: new Date().toISOString(),
-            }, { onConflict: 'razorpay_order_id' });
+            })
+            .eq("razorpay_order_id", razorpay_order_id);
 
         if (paymentError) {
             console.error("Error logging payment record:", paymentError);
+        }
+
+        // 3. Create the Paid Invoice directly (no more pending invoices)
+        if (clientId && freelancerId) {
+            const invoiceNumber = `INV-${Date.now()}`;
+            const { error: invoiceCreateError } = await supabase
+                .from("invoices")
+                .insert({
+                    project_id: projectId,
+                    client_id: clientId,
+                    freelancer_id: freelancerId,
+                    amount: validPayment.amount,
+                    currency: "INR",
+                    status: "paid", // Instant Paid Status
+                    invoice_number: invoiceNumber,
+                    invoice_type: paymentType === 'advance' ? 'advance_payment' : 'phase_payment',
+                    phase_id: phaseId || null,
+                    subtotal_amount: subtotal,
+                    gst_amount: gstAmount,
+                    total_amount: validPayment.amount
+                });
+            
+            if (invoiceCreateError) {
+                console.error("Failed to generate paid invoice:", invoiceCreateError);
+            }
         }
 
         // 2. Automate Project Status and Bid Acceptance!
@@ -183,19 +225,8 @@ serve(async (req) => {
                         .in("id", phaseIdsToMark);
                 }
 
-                // Update Advance Payment Invoice to Paid
-                const { error: invoiceUpdateError } = await supabase
-                    .from("invoices")
-                    .update({ status: 'paid' })
-                    .eq("project_id", projectId)
-                    .eq("invoice_type", "advance_payment")
-                    .eq("status", "pending");
-                    
-                if (invoiceUpdateError) {
-                    console.error("Error setting advance invoice to paid:", invoiceUpdateError);
-                }
+                // Legacy pending invoice update has been moved to direct generation on line 94
             } else if (paymentType === 'phase') {
-                const { phaseId } = body;
                 console.log(`Processing phase payment for phase ${phaseId}...`);
 
                 const { error: phaseError } = await supabase
@@ -208,17 +239,7 @@ serve(async (req) => {
                     throw new Error("Payment verified but failed to update phase status");
                 }
 
-                // Update Phase Payment Invoice to Paid
-                const { error: invoiceUpdateError } = await supabase
-                    .from("invoices")
-                    .update({ status: 'paid' })
-                    .eq("project_id", projectId)
-                    .eq("phase_id", phaseId)
-                    .eq("status", "pending");
-                    
-                if (invoiceUpdateError) {
-                    console.error("Error setting phase invoice to paid:", invoiceUpdateError);
-                }
+                // Legacy pending invoice update has been moved to direct generation on line 94
             } else {
                 // Legacy / Default logic: Completion payment (Project Status Update only)
                 console.log(`Marking project ${projectId} as completed after payment verification...`);
