@@ -65,6 +65,28 @@ serve(async (req) => {
         }
 
 
+        let existingPayment = null;
+
+        // Try to find an existing pending payment to reuse, avoiding duplicates
+        const { data: existingRecords } = await supabase
+            .from("payments")
+            .select("razorpay_order_id, amount, metadata")
+            .eq("project_id", projectId)
+            .eq("status", "pending")
+            .eq("amount", totalAmount);
+
+        if (existingRecords && existingRecords.length > 0) {
+            existingPayment = existingRecords.find((record: any) => {
+                if (!record.metadata) return false;
+                if (paymentType === 'advance') {
+                    return record.metadata.paymentType === 'advance';
+                } else if (paymentType === 'phase') {
+                    return record.metadata.paymentType === 'phase' && record.metadata.phaseId === phaseId;
+                }
+                return false;
+            });
+        }
+
         // Initialize Razorpay
         const instance = new Razorpay({
             key_id: Deno.env.get("RAZORPAY_KEY_ID") ?? "",
@@ -90,56 +112,93 @@ serve(async (req) => {
             },
         };
 
-        const order = await instance.orders.create(options);
+        let order;
+        let isNewOrder = false;
 
+        if (existingPayment && existingPayment.razorpay_order_id) {
+            try {
+                // Fetch the existing Razorpay order to reuse
+                order = await instance.orders.fetch(existingPayment.razorpay_order_id);
+                console.log("Reused existing pending Razorpay order:", order.id);
+            } catch (err) {
+                console.warn("Failed to fetch existing Razorpay order, falling back to new creation...");
+            }
+        }
+
+        // If no existing order was found or fetching failed, create a new one
         if (!order) {
-            throw new Error("Failed to create Razorpay order");
+            isNewOrder = true;
+            order = await instance.orders.create(options);
+
+            if (!order) {
+                throw new Error("Failed to create Razorpay order");
+            }
         }
 
-        // Save initial payment record
-        const { error: paymentError } = await supabase
-            .from("payments")
-            .insert({
-                project_id: projectId,
-                amount: totalAmount, // Use the total amount with GST
-                currency: currency,
-                status: "pending",
-                razorpay_order_id: order.id,
-                metadata: {
-                    paymentType: paymentType || null,
-                    bidId: bidId || null,
-                    phaseId: phaseId || null,
-                }
-            });
-
-        if (paymentError) {
-            console.error("Error creating payment record:", paymentError);
-            throw new Error("Failed to create payment record");
-        }
-
-        // Generate a Pending Invoice
-        const invoiceNumber = `INV-${Date.now()}`;
-        if (clientId && freelancerId) {
-            const { error: invoiceError } = await supabase
-                .from("invoices")
+        // Only create new records if we created a new Razorpay order
+        if (isNewOrder) {
+            // Save initial payment record
+            const { error: paymentError } = await supabase
+                .from("payments")
                 .insert({
                     project_id: projectId,
-                    client_id: clientId,
-                    freelancer_id: freelancerId,
-                    amount: totalAmount,
+                    amount: totalAmount, // Use the total amount with GST
                     currency: currency,
                     status: "pending",
-                    invoice_number: invoiceNumber,
-                    invoice_type: paymentType === 'advance' ? 'advance_payment' : 'phase_payment',
-                    phase_id: phaseId || null,
-                    subtotal_amount: subtotal,
-                    gst_amount: gstAmount,
-                    total_amount: totalAmount
+                    razorpay_order_id: order.id,
+                    metadata: {
+                        paymentType: paymentType || null,
+                        bidId: bidId || null,
+                        phaseId: phaseId || null,
+                    }
                 });
-            
-            if (invoiceError) {
-                console.error("Error generating pending invoice:", invoiceError);
-                // Do not throw, allow order to proceed even if invoice generation fails non-critically
+
+            if (paymentError) {
+                console.error("Error creating payment record:", paymentError);
+                throw new Error("Failed to create payment record");
+            }
+
+            // Generate a Pending Invoice
+            const invoiceNumber = `INV-${Date.now()}`;
+            if (clientId && freelancerId) {
+                // Double check it doesn't already exist to be completely safe
+                const invoiceType = paymentType === 'advance' ? 'advance_payment' : 'phase_payment';
+                let invoiceQuery = supabase
+                    .from("invoices")
+                    .select("id")
+                    .eq("project_id", projectId)
+                    .eq("invoice_type", invoiceType)
+                    .eq("status", "pending");
+
+                if (invoiceType === 'phase_payment' && phaseId) {
+                    invoiceQuery = invoiceQuery.eq("phase_id", phaseId);
+                }
+
+                const { data: existingInvoices } = await invoiceQuery;
+
+                if (!existingInvoices || existingInvoices.length === 0) {
+                    const { error: invoiceError } = await supabase
+                        .from("invoices")
+                        .insert({
+                            project_id: projectId,
+                            client_id: clientId,
+                            freelancer_id: freelancerId,
+                            amount: totalAmount,
+                            currency: currency,
+                            status: "pending",
+                            invoice_number: invoiceNumber,
+                            invoice_type: invoiceType,
+                            phase_id: phaseId || null,
+                            subtotal_amount: subtotal,
+                            gst_amount: gstAmount,
+                            total_amount: totalAmount
+                        });
+
+                    if (invoiceError) {
+                        console.error("Error generating pending invoice:", invoiceError);
+                        // Do not throw, allow order to proceed even if invoice generation fails non-critically
+                    }
+                }
             }
         }
 
