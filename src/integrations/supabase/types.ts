@@ -362,10 +362,15 @@ export type Database = {
           currency: string | null
           due_date: string | null
           freelancer_id: string
+          gst_amount: number | null
           id: string
           invoice_number: string
+          invoice_type: string | null
+          phase_id: string | null
           project_id: string | null
           status: string | null
+          subtotal_amount: number | null
+          total_amount: number | null
         }
         Insert: {
           amount: number
@@ -374,10 +379,15 @@ export type Database = {
           currency?: string | null
           due_date?: string | null
           freelancer_id: string
+          gst_amount?: number | null
           id?: string
           invoice_number: string
+          invoice_type?: string | null
+          phase_id?: string | null
           project_id?: string | null
           status?: string | null
+          subtotal_amount?: number | null
+          total_amount?: number | null
         }
         Update: {
           amount?: number
@@ -386,10 +396,15 @@ export type Database = {
           currency?: string | null
           due_date?: string | null
           freelancer_id?: string
+          gst_amount?: number | null
           id?: string
           invoice_number?: string
+          invoice_type?: string | null
+          phase_id?: string | null
           project_id?: string | null
           status?: string | null
+          subtotal_amount?: number | null
+          total_amount?: number | null
         }
         Relationships: [
           {
@@ -405,6 +420,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "invoices_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "project_phases"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "invoices_project_id_fkey"
@@ -453,12 +475,43 @@ export type Database = {
           },
         ]
       }
+      otp_verifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          otp: string
+          phone: string
+          updated_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          otp: string
+          phone: string
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          otp?: string
+          phone?: string
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
           created_at: string | null
           currency: string
           id: string
+          metadata: Json | null
           project_id: string
           razorpay_order_id: string | null
           razorpay_payment_id: string | null
@@ -470,6 +523,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          metadata?: Json | null
           project_id: string
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
@@ -481,6 +535,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          metadata?: Json | null
           project_id?: string
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
@@ -1145,6 +1200,7 @@ export type Database = {
         Args: { _required_credits?: number; _user_id: string }
         Returns: boolean
       }
+      is_signup_email_taken: { Args: { p_email: string }; Returns: boolean }
       normalize_community_name: {
         Args: { input_name: string }
         Returns: string

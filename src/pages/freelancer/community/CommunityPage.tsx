@@ -233,7 +233,7 @@ export default function CommunityPage() {
       const { data: contextData, error: contextError } = await supabase.rpc('get_my_community_context');
       if (contextError) throw contextError;
 
-      const verification = contextData?.verification;
+      const verification = (contextData as any)?.verification;
       if (verification) {
         setVerificationStatus(verification.verification_status || null);
         setVerificationPending(verification.verification_status === 'pending');
@@ -267,8 +267,8 @@ export default function CommunityPage() {
         });
         if (dashboardError) throw dashboardError;
 
-        const fetchedMembers = (dashboardData?.members || []) as CommunityMember[];
-        const fetchedTasks = (dashboardData?.tasks || []) as CommunityTask[];
+        const fetchedMembers = ((dashboardData as any)?.members || []) as CommunityMember[];
+        const fetchedTasks = ((dashboardData as any)?.tasks || []) as CommunityTask[];
 
         setMembers(fetchedMembers);
         setTasks(fetchedTasks);
