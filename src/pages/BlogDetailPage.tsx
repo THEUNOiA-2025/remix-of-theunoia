@@ -23,6 +23,8 @@ interface Blog {
   blog_images: string[] | null;
   published_at: string | null;
   created_at: string;
+  meta_title: string | null;
+  meta_description: string | null;
 }
 
 const escapeHtml = (value: string) =>
@@ -216,18 +218,16 @@ const BlogDetailPage = () => {
     );
   }
 
+  const seoTitle = blog.meta_title || `${blog.title} | THEUNOIA`;
+  const seoDescription = blog.meta_description || blog.excerpt || '';
+  const seoCanonical = `https://www.theunoia.com/blog/${blog.slug}`;
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{blog.title}</title>
-        <meta
-          name="description"
-          content={
-            blog.excerpt?.trim() ||
-            `Read ${blog.title} on TheUnoia blog for practical student freelancing insights.`
-          }
-        />
-        <link rel="canonical" href={`https://www.theunoia.com/blog/${blog.slug}`} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={seoCanonical} />
       </Helmet>
       <Header />
       
