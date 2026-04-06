@@ -97,6 +97,8 @@ interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  meta_title: string | null;
+  meta_description: string | null;
 }
 
 interface BlogFormData {
@@ -109,6 +111,8 @@ interface BlogFormData {
   meta_title: string;
   meta_description: string;
   status: string;
+  meta_title: string;
+  meta_description: string;
 }
 
 const initialFormData: BlogFormData = {
@@ -121,6 +125,8 @@ const initialFormData: BlogFormData = {
   meta_title: '',
   meta_description: '',
   status: 'draft',
+  meta_title: '',
+  meta_description: '',
 };
 
 const hasVisibleEditorContent = (html: string) => {
@@ -235,8 +241,15 @@ const AdminBlogsPage = () => {
   const createBlogMutation = useMutation({
     mutationFn: async (data: BlogFormData) => {
       const { error } = await supabase.from('blogs').insert({
-        ...data,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || null,
         content: normalizeBlogEditorHtml(data.content),
+        cover_image_url: data.cover_image_url || null,
+        blog_images: data.blog_images.length ? data.blog_images : null,
+        status: data.status,
+        meta_title: data.meta_title.trim() || null,
+        meta_description: data.meta_description.trim() || null,
         author_id: user?.id,
         published_at: data.status === 'published' ? new Date().toISOString() : null,
       });
@@ -256,15 +269,22 @@ const AdminBlogsPage = () => {
   const updateBlogMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: BlogFormData }) => {
       const updateData: Record<string, unknown> = {
-        ...data,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt || null,
         content: normalizeBlogEditorHtml(data.content),
+        cover_image_url: data.cover_image_url || null,
+        blog_images: data.blog_images.length ? data.blog_images : null,
+        status: data.status,
+        meta_title: data.meta_title.trim() || null,
+        meta_description: data.meta_description.trim() || null,
       };
-      
+
       // Set published_at when publishing for the first time
       if (data.status === 'published' && editingBlog?.status !== 'published') {
         updateData.published_at = new Date().toISOString();
       }
-      
+
       const { error } = await supabase
         .from('blogs')
         .update(updateData)
@@ -310,6 +330,8 @@ const AdminBlogsPage = () => {
         meta_title: blog.meta_title || '',
         meta_description: blog.meta_description || '',
         status: blog.status,
+        meta_title: blog.meta_title ?? '',
+        meta_description: blog.meta_description ?? '',
       });
     } else {
       setEditingBlog(null);
@@ -422,6 +444,27 @@ const AdminBlogsPage = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
                   placeholder="Brief description of the blog post..."
                   rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="meta_title">Meta Title</Label>
+                <Input
+                  id="meta_title"
+                  value={formData.meta_title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, meta_title: e.target.value }))}
+                  placeholder="SEO title (optional)"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="meta_description">Meta Description</Label>
+                <Textarea
+                  id="meta_description"
+                  value={formData.meta_description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, meta_description: e.target.value }))}
+                  placeholder="SEO meta description (optional)"
+                  rows={3}
                 />
               </div>
 

@@ -218,9 +218,9 @@ const BlogDetailPage = () => {
     );
   }
 
-  const seoCanonical = `https://www.theunoia.com/blog/${blog.slug}`;
   const seoTitle = blog.meta_title || `${blog.title} | THEUNOIA`;
-  const seoDescription = blog.meta_description || blog.excerpt || "";
+  const seoDescription = blog.meta_description || blog.excerpt || '';
+  const seoCanonical = `https://www.theunoia.com/blog/${blog.slug}`;
 
   return (
     <div className="min-h-screen bg-background">
