@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
 serve(async (req) => {
@@ -48,12 +48,34 @@ serve(async (req) => {
 
     if (error) throw error
 
-    // TODO: Integrate actual SMS provider here (Twilio, MSG91, Textlocal, Fast2SMS)
-    // For now, we simulate sending by logging it to the console
-    console.log(`[SIMULATED SMS to ${phone}] Your TheUnoia verification code is: ${otp}`)
+    // Send SMS via StartMessaging API
+    const START_MESSAGING_API_KEY = Deno.env.get('START_MESSAGING_API_KEY')
+    
+    const smsResponse = await fetch('https://api.startmessaging.com/otp/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': START_MESSAGING_API_KEY
+      },
+      body: JSON.stringify({
+        phoneNumber: phone,
+        templateId: Deno.env.get('START_MESSAGING_TEMPLATE_ID') || 'DEFAULT_TEMPLATE',
+        variables: {
+          otp: otp,
+          appName: 'TheUnoia'
+        }
+      })
+    })
+
+    if (!smsResponse.ok) {
+      const errorText = await smsResponse.text()
+      console.error(`[StartMessaging API Error] ${smsResponse.status}: ${errorText}`)
+    } else {
+      console.log(`[StartMessaging] OTP sent successfully to ${phone}`)
+    }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'OTP sent successfully (Simulated in logs)' }),
+      JSON.stringify({ success: true, message: 'OTP sent successfully' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
