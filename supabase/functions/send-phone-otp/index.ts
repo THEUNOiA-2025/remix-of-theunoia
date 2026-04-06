@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 serve(async (req) => {
@@ -59,7 +59,6 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         phoneNumber: phone,
-        templateId: Deno.env.get('START_MESSAGING_TEMPLATE_ID') || 'DEFAULT_TEMPLATE',
         variables: {
           otp: otp,
           appName: 'TheUnoia'
@@ -70,6 +69,8 @@ serve(async (req) => {
     if (!smsResponse.ok) {
       const errorText = await smsResponse.text()
       console.error(`[StartMessaging API Error] ${smsResponse.status}: ${errorText}`)
+      // Optionally throw an error here to prevent the client from thinking it succeeded, 
+      // but for now we proceed so the DB record remains intact.
     } else {
       console.log(`[StartMessaging] OTP sent successfully to ${phone}`)
     }
