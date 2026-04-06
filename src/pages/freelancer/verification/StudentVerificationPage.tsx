@@ -327,7 +327,6 @@ const StudentVerificationPage = () => {
     try {
       console.log("Attempting to send OTP to:", formData.instituteEmail);
       const response = await supabase.functions.invoke('send-email-verification', {
-        headers: { Authorization: `Bearer ${accessToken}` },
         body: { email: formData.instituteEmail },
       });
 
@@ -364,7 +363,6 @@ const StudentVerificationPage = () => {
     setVerifyingCode(true);
     try {
       const response = await supabase.functions.invoke('verify-email-code', {
-        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           email: formData.instituteEmail,
           code: otpCode,

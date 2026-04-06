@@ -1,0 +1,4 @@
+ALTER TABLE public.blogs
+  ADD COLUMN IF NOT EXISTS meta_title TEXT,
+  ADD COLUMN IF NOT EXISTS meta_description TEXT,
+  ADD COLUMN IF NOT EXISTS faqs JSONB DEFAULT '[]';

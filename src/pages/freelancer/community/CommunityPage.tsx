@@ -441,13 +441,14 @@ export default function CommunityPage() {
     try {
       console.log("CommunityPage: Attempting to send OTP to:", verificationForm.email);
 
-      // Using the correct function name: 'send-email-verification'
       const { data, error } = await supabase.functions.invoke('send-email-verification', {
-        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           email: verificationForm.email,
           userId: user?.id,
           name: verificationForm.firstName || 'Student'
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
 
@@ -476,13 +477,14 @@ export default function CommunityPage() {
     }
     setVerifyingCode(true);
     try {
-      // Using the correct function name: 'verify-email-code'
       const { data, error } = await supabase.functions.invoke('verify-email-code', {
-        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           email: verificationForm.email,
           code: otpCode,
           userId: user?.id
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
 

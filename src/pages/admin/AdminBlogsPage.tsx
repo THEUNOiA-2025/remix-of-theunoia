@@ -90,6 +90,8 @@ interface Blog {
   content: string;
   cover_image_url: string | null;
   blog_images: string[] | null;
+  meta_title: string | null;
+  meta_description: string | null;
   author_id: string;
   status: string;
   published_at: string | null;
@@ -104,6 +106,8 @@ interface BlogFormData {
   content: string;
   cover_image_url: string;
   blog_images: string[];
+  meta_title: string;
+  meta_description: string;
   status: string;
 }
 
@@ -114,6 +118,8 @@ const initialFormData: BlogFormData = {
   content: '',
   cover_image_url: '',
   blog_images: [],
+  meta_title: '',
+  meta_description: '',
   status: 'draft',
 };
 
@@ -301,6 +307,8 @@ const AdminBlogsPage = () => {
         content: blog.content,
         cover_image_url: blog.cover_image_url || '',
         blog_images: blog.blog_images || [],
+        meta_title: blog.meta_title || '',
+        meta_description: blog.meta_description || '',
         status: blog.status,
       });
     } else {
@@ -380,6 +388,28 @@ const AdminBlogsPage = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                     placeholder="blog-post-url-slug"
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="meta_title">Meta Title</Label>
+                  <Input
+                    id="meta_title"
+                    value={formData.meta_title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, meta_title: e.target.value }))}
+                    placeholder="SEO Title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="meta_description">Meta Description</Label>
+                  <Textarea
+                    id="meta_description"
+                    value={formData.meta_description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, meta_description: e.target.value }))}
+                    placeholder="SEO Description"
+                    rows={2}
                   />
                 </div>
               </div>

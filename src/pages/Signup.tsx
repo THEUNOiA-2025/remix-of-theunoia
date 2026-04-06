@@ -379,7 +379,7 @@ const Signup = () => {
       if (data?.error) throw new Error(data.error);
 
       setOtpSent(true);
-      toast({ title: 'Success', description: 'OTP sent to your mobile number (Simulated in Server Logs for now)' });
+      toast({ title: 'Success', description: 'OTP sent to your mobile number successfully' });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to send OTP', variant: 'destructive' });
     } finally {

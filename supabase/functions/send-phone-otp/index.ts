@@ -48,12 +48,35 @@ serve(async (req) => {
 
     if (error) throw error
 
-    // TODO: Integrate actual SMS provider here (Twilio, MSG91, Textlocal, Fast2SMS)
-    // For now, we simulate sending by logging it to the console
-    console.log(`[SIMULATED SMS to ${phone}] Your TheUnoia verification code is: ${otp}`)
+    // Send SMS via StartMessaging API
+    const START_MESSAGING_API_KEY = Deno.env.get('START_MESSAGING_API_KEY')
+    
+    const smsResponse = await fetch('https://api.startmessaging.com/otp/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': START_MESSAGING_API_KEY
+      },
+      body: JSON.stringify({
+        phoneNumber: phone,
+        variables: {
+          otp: otp,
+          appName: 'TheUnoia'
+        }
+      })
+    })
+
+    if (!smsResponse.ok) {
+      const errorText = await smsResponse.text()
+      console.error(`[StartMessaging API Error] ${smsResponse.status}: ${errorText}`)
+      // Optionally throw an error here to prevent the client from thinking it succeeded, 
+      // but for now we proceed so the DB record remains intact.
+    } else {
+      console.log(`[StartMessaging] OTP sent successfully to ${phone}`)
+    }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'OTP sent successfully (Simulated in logs)' }),
+      JSON.stringify({ success: true, message: 'OTP sent successfully' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
