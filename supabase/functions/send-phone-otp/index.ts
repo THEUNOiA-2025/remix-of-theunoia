@@ -69,6 +69,8 @@ serve(async (req) => {
     if (!smsResponse.ok) {
       const errorText = await smsResponse.text()
       console.error(`[StartMessaging API Error] ${smsResponse.status}: ${errorText}`)
+      // Optionally throw an error here to prevent the client from thinking it succeeded, 
+      // but for now we proceed so the DB record remains intact.
     } else {
       console.log(`[StartMessaging] OTP sent successfully to ${phone}`)
     }
