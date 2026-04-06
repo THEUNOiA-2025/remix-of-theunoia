@@ -59,7 +59,6 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         phoneNumber: phone,
-        templateId: Deno.env.get('START_MESSAGING_TEMPLATE_ID') || 'DEFAULT_TEMPLATE',
         variables: {
           otp: otp,
           appName: 'TheUnoia'
