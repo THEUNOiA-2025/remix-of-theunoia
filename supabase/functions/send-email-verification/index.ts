@@ -119,7 +119,6 @@ const handler = async (req: Request): Promise<Response> => {
       .from("email_verification_codes")
       .select("id")
       .eq("user_id", user.id)
-      .eq("email", emailLower)
       .gte("created_at", oneHourAgo);
 
     if (countError) {

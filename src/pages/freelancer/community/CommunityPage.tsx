@@ -429,26 +429,27 @@ export default function CommunityPage() {
       toast.error("Please enter your email address");
       return;
     }
-    const { data: authData } = await supabase.auth.getSession();
-    const accessToken =
-      authData.session?.access_token ?? session?.access_token;
-    if (!accessToken) {
-      toast.error("Please log in again to verify your email.");
-      return;
-    }
-
     setSendingCode(true);
     try {
+      // 1. Force ping the Auth server to validate the local session token FIRST
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      if (authError || !session?.access_token) {
+        toast.error("Your login session has expired. Please log out and back in.");
+        setSendingCode(false);
+        return;
+      }
+
       console.log("CommunityPage: Attempting to send OTP to:", verificationForm.email);
 
+      // 2. Invoke the function manually attaching the FRESHEST token to avoid client state caching issues
       const { data, error } = await supabase.functions.invoke('send-email-verification', {
         body: {
           email: verificationForm.email,
-          userId: user?.id,
+          userId: session.user.id,
           name: verificationForm.firstName || 'Student'
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${session.access_token}`
         }
       });
 
@@ -460,7 +461,19 @@ export default function CommunityPage() {
       toast.success("Verification code sent to " + verificationForm.email);
     } catch (err: any) {
       console.error('Error sending code:', err);
-      toast.error(err?.message || "Failed to send verification code");
+      if (err.context) {
+        try {
+          const body = await err.context.json();
+          console.error("Edge Function Response Body:", body);
+          if (body.error) toast.error(body.error);
+          else toast.error("Failed to send verification code. Check console.");
+        } catch(e) {
+           console.error("Could not parse error body", e);
+           toast.error(err?.message || "Failed to send verification code");
+        }
+      } else {
+        toast.error(err?.message || "Failed to send verification code");
+      }
     } finally {
       setSendingCode(false);
     }
@@ -468,23 +481,23 @@ export default function CommunityPage() {
 
   const handleVerifyCode = async () => {
     if (otpCode.length !== 6) return;
-    const { data: authData } = await supabase.auth.getSession();
-    const accessToken =
-      authData.session?.access_token ?? session?.access_token;
-    if (!accessToken) {
-      toast.error("Please log in again to verify your email.");
-      return;
-    }
     setVerifyingCode(true);
     try {
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      if (authError || !session?.access_token) {
+        toast.error("Your login session has expired. Please log out and back in.");
+        setVerifyingCode(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('verify-email-code', {
         body: {
           email: verificationForm.email,
           code: otpCode,
-          userId: user?.id
+          userId: session.user.id
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${session.access_token}`
         }
       });
 
@@ -499,7 +512,19 @@ export default function CommunityPage() {
       }
     } catch (err: any) {
       console.error('Error verifying code:', err);
-      toast.error(err.message || "Verification failed");
+      if (err.context) {
+        try {
+          const body = await err.context.json();
+          console.error("Verify Edge Function Response Body:", body);
+          if (body.error) toast.error(body.error);
+          else toast.error("Verification failed. Check console.");
+        } catch(e) {
+           console.error("Could not parse error body", e);
+           toast.error(err?.message || "Verification failed");
+        }
+      } else {
+        toast.error(err?.message || "Verification failed");
+      }
     } finally {
       setVerifyingCode(false);
     }

@@ -146,34 +146,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Update student_verifications table
-    const { error: updateVerificationError } = await supabase
+    // Update or insert student_verifications table
+    const { error: upsertVerificationError } = await supabase
       .from("student_verifications")
-      .update({
+      .upsert({
+        user_id: user.id,
         email_verified: true,
         email_verified_at: new Date().toISOString(),
         institute_email: emailLower,
-      })
-      .eq("user_id", user.id);
+      }, { onConflict: 'user_id' });
 
-    // If no record exists, create one (upsert approach)
-    if (updateVerificationError) {
-      const { error: upsertError } = await supabase
-        .from("student_verifications")
-        .upsert({
-          user_id: user.id,
-          email_verified: true,
-          email_verified_at: new Date().toISOString(),
-          institute_email: emailLower,
-        }, { onConflict: 'user_id' });
-
-      if (upsertError) {
-        console.error("Upsert error:", upsertError);
-        return new Response(
-          JSON.stringify({ error: "Failed to update verification status" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    if (upsertVerificationError) {
+      console.error("Verification update error:", upsertVerificationError);
+      return new Response(
+        JSON.stringify({ error: "Failed to update verification status" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     console.log("Email verified successfully for user:", user.id);
