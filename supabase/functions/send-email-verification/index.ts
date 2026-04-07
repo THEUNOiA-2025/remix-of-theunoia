@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.76.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("Resend_API"));
@@ -179,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send email via Resend
-    const emailResponse = await resend.emails.send({
+    const { data: emailData, error: sendError } = await resend.emails.send({
       from: "TheUnoia <noreply@theunoia.com>",
       to: [emailLower],
       subject: "Your Student Verification Code - TheUnoia",
@@ -207,7 +207,15 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    if (sendError) {
+      console.error("Resend API Error:", sendError);
+      return new Response(
+        JSON.stringify({ error: sendError.message || "Failed to deliver email. Check Edge Function logs." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Email sent successfully:", emailData);
 
     return new Response(
       JSON.stringify({ success: true, message: "Verification code sent" }),

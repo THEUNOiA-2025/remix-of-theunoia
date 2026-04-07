@@ -97,8 +97,6 @@ interface Blog {
   published_at: string | null;
   created_at: string;
   updated_at: string;
-  meta_title: string | null;
-  meta_description: string | null;
 }
 
 interface BlogFormData {
@@ -111,8 +109,6 @@ interface BlogFormData {
   meta_title: string;
   meta_description: string;
   status: string;
-  meta_title: string;
-  meta_description: string;
 }
 
 const initialFormData: BlogFormData = {
@@ -125,8 +121,6 @@ const initialFormData: BlogFormData = {
   meta_title: '',
   meta_description: '',
   status: 'draft',
-  meta_title: '',
-  meta_description: '',
 };
 
 const hasVisibleEditorContent = (html: string) => {
@@ -330,8 +324,6 @@ const AdminBlogsPage = () => {
         meta_title: blog.meta_title || '',
         meta_description: blog.meta_description || '',
         status: blog.status,
-        meta_title: blog.meta_title ?? '',
-        meta_description: blog.meta_description ?? '',
       });
     } else {
       setEditingBlog(null);
