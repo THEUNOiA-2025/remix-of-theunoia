@@ -7,7 +7,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.verify-email-code]
-verify_jwt = true
+verify_jwt = false
 
 [functions.sitemap]
 verify_jwt = false
