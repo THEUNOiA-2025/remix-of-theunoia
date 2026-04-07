@@ -4,7 +4,7 @@ project_id = "oeleyonqaowubcfreqoy"
 verify_jwt = true
 
 [functions.send-email-verification]
-verify_jwt = true
+verify_jwt = false
 
 [functions.verify-email-code]
 verify_jwt = true
