@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { UserTable } from '@/components/admin/UserTable';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { 
   Select,
   SelectContent,
@@ -9,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Download } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface UserProfile {
   id: string;
@@ -118,6 +120,68 @@ const AdminUsersPage = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleExportUsers = () => {
+    const normalizePhoneForExport = (rawPhone: string | null) => {
+      const value = (rawPhone || '').trim();
+      if (!value) return '';
+      const digits = value.replace(/\D/g, '');
+      if (digits.length === 10) return `+91 ${digits}`;
+      if (digits.length === 12 && digits.startsWith('91')) return `+91 ${digits.slice(2)}`;
+      return value;
+    };
+
+    const toExcelText = (value: string) => `="${value.replace(/"/g, '""')}"`;
+
+    const csvHeaders = [
+      'Full Name',
+      'Email',
+      'User Type',
+      'Verification Status',
+      'Freelancer Access',
+      'Admin',
+      'Joined Date',
+      'Joined Time',
+      'City',
+      'Phone',
+    ];
+
+    const csvRows = filteredUsers.map((user) => {
+      const joinedDate = format(new Date(user.created_at), 'dd MMM yyyy');
+      const joinedTime = format(new Date(user.created_at), 'hh:mm a');
+      const verificationStatus = user.student_verification?.verification_status || '-';
+      const formattedPhone = normalizePhoneForExport(user.phone);
+
+      return [
+        `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+        user.email || '',
+        user.user_type === 'student' ? 'Student' : 'Non-Student',
+        verificationStatus,
+        user.freelancer_access?.has_access ? 'Active' : 'No',
+        user.is_admin ? 'Yes' : 'No',
+        toExcelText(joinedDate),
+        toExcelText(joinedTime),
+        user.city || '',
+        toExcelText(formattedPhone),
+      ];
+    });
+
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const csvContent = [
+      csvHeaders.map(escapeCsv).join(','),
+      ...csvRows.map((row) => row.map((cell) => escapeCsv(cell)).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `users-report-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -137,7 +201,7 @@ const AdminUsersPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -170,6 +234,10 @@ const AdminUsersPage = () => {
             </SelectItem>
           </SelectContent>
         </Select>
+        <Button onClick={handleExportUsers} variant="outline" className="sm:ml-auto">
+          <Download className="h-4 w-4 mr-2" />
+          Export
+        </Button>
       </div>
 
       {/* Users Table */}

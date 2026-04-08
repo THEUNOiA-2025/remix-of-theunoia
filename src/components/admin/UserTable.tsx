@@ -129,13 +129,14 @@ export const UserTable = ({ users, onRefresh }: UserTableProps) => {
               <TableHead>Verification</TableHead>
               <TableHead>Freelancer Access</TableHead>
               <TableHead>Joined</TableHead>
+              <TableHead>Join Time</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
@@ -176,6 +177,9 @@ export const UserTable = ({ users, onRefresh }: UserTableProps) => {
                   </TableCell>
                   <TableCell>
                     {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(user.created_at), 'hh:mm a')}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
