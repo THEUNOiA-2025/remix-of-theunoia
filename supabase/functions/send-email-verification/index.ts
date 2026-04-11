@@ -189,18 +189,45 @@ const handler = async (req: Request): Promise<Response> => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
-          <div style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <h1 style="color: #18181b; font-size: 24px; font-weight: 600; margin: 0 0 8px 0;">Verify Your Email</h1>
-            <p style="color: #71717a; font-size: 14px; margin: 0 0 32px 0;">Use the code below to verify your student email address.</p>
-            
-            <div style="background-color: #f4f4f5; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 24px;">
-              <span style="font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #18181b;">${code}</span>
-            </div>
-            
-            <p style="color: #71717a; font-size: 14px; margin: 0 0 8px 0;">This code will expire in <strong>10 minutes</strong>.</p>
-            <p style="color: #a1a1aa; font-size: 12px; margin: 0;">If you didn't request this code, you can safely ignore this email.</p>
-          </div>
+        <body style="margin:0;padding:0;background-color:#0b0b0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0b0b0f;padding:40px 20px;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#111118;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);overflow:hidden;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="background:linear-gradient(135deg,#7e63f8,#4f8cff);padding:32px 40px;border-radius:16px 16px 0 0;">
+                      <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.5px;">THEUNOiA Support</p>
+                    </td>
+                  </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding:40px;">
+                      <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#ffffff;">Verify Your Email</h1>
+                      <p style="margin:0 0 32px 0;font-size:15px;color:#a1a1aa;line-height:1.6;">Use the verification code below to confirm your student email address.</p>
+                      <!-- OTP Box -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" style="padding:0 0 32px 0;">
+                            <div style="background-color:#0b0b0f;border:1px solid #1f1f28;border-radius:12px;padding:28px 24px;display:inline-block;">
+                              <span style="font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:700;letter-spacing:10px;color:#ffffff;">${code}</span>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                      <!-- Footer info -->
+                      <p style="margin:0 0 6px 0;font-size:14px;color:#a1a1aa;">This code will expire in <strong style="color:#ffffff;">10 minutes</strong>.</p>
+                      <p style="margin:0 0 32px 0;font-size:13px;color:#52525b;">If you didn't request this, you can safely ignore this email.</p>
+                      <!-- Signature -->
+                      <div style="border-top:1px solid #1f1f28;padding-top:24px;">
+                        <p style="margin:0;font-size:13px;color:#52525b;">— THEUNOiA Support Team</p>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
         </html>
       `,
